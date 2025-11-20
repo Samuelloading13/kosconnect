@@ -15,6 +15,34 @@
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                         {{ __('Dashboard') }}
                     </x-nav-link>
+
+                    @if(Auth::user()->role == 'admin')
+                        <!-- === MENU KHUSUS ADMIN === -->
+
+                        <!-- 1. Manajemen Kamar -->
+                        <x-nav-link :href="route('admin.kamar.index')" :active="request()->routeIs('admin.kamar.*')">
+                            {{ __('Manajemen Kamar') }}
+                        </x-nav-link>
+
+                        <!-- 2. Validasi Pembayaran -->
+                        <x-nav-link :href="route('admin.pembayaran.index')" :active="request()->routeIs('admin.pembayaran.*')">
+                            {{ __('Validasi Pembayaran') }}
+                        </x-nav-link>
+
+                        <!-- 3. Laporan Masuk -->
+                        <x-nav-link :href="route('admin.laporan_kerusakan.index')" :active="request()->routeIs('admin.laporan_kerusakan.*')">
+                            {{ __('Laporan Masuk') }}
+                        </x-nav-link>
+
+                        <!-- 4. Laporan Pemasukan -->
+                        <x-nav-link :href="route('admin.laporan.pemasukan')" :active="request()->routeIs('admin.laporan.pemasukan')">
+                            {{ __('Laporan Pemasukan') }}
+                        </x-nav-link>
+
+                         <!-- 5. Data Penghuni (BARU) -->
+                         <x-nav-link :href="route('admin.penghuni.index')" :active="request()->routeIs('admin.penghuni.*')">
+                            {{ __('Data Penghuni') }}
+                        </x-nav-link>
                 </div>
             </div>
 
@@ -70,6 +98,24 @@
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
+
+            @if(Auth::user()->role == 'admin')
+                <x-responsive-nav-link :href="route('admin.kamar.index')" :active="request()->routeIs('admin.kamar.*')">
+                    {{ __('Manajemen Kamar') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('admin.pembayaran.index')" :active="request()->routeIs('admin.pembayaran.*')">
+                    {{ __('Validasi Pembayaran') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('admin.laporan_kerusakan.index')" :active="request()->routeIs('admin.laporan_kerusakan.*')">
+                    {{ __('Laporan Masuk') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('admin.laporan.pemasukan')" :active="request()->routeIs('admin.laporan.pemasukan')">
+                    {{ __('Laporan Pemasukan') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('admin.penghuni.index')" :active="request()->routeIs('admin.penghuni.*')">
+                    {{ __('Data Penghuni') }}
+                </x-responsive-nav-link>
+            @endif
         </div>
 
         <!-- Responsive Settings Options -->
