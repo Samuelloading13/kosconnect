@@ -5,49 +5,152 @@
             <div class="flex">
                 <!-- Logo -->
                 <div class="shrink-0 flex items-center">
-                    <a href="{{ route('dashboard') }}">
+                    <a href="{{ Auth::user()->role == 'penghuni' ? route('penghuni.dashboard') : route('dashboard') }}">
                         <x-application-logo class="block h-9 w-auto fill-current text-gray-800 dark:text-gray-200" />
                     </a>
                 </div>
 
                 <!-- Navigation Links -->
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                        {{ __('Dashboard') }}
-                    </x-nav-link>
+                    <!-- MENU PENGHUNI -->
+                    @if(Auth::user()->role == 'penghuni')
+                        <x-nav-link :href="route('penghuni.dashboard')" :active="request()->routeIs('penghuni.dashboard')">
+                            {{ __('Dashboard Saya') }}
+                        </x-nav-link>
 
+                        <!-- Cek apakah user ini statusnya sudah 'resmi' (punya booking disetujui) -->
+                        @php
+                            $isResmi = false;
+                            if (class_exists(\App\Models\Booking::class)) {
+                                $isResmi = \App\Models\Booking::where('user_id', Auth::id())
+                                            ->where('status', 'disetujui')
+                                            ->exists();
+                            }
+                        @endphp
+
+                        <!-- Menu ini HANYA muncul kalau sudah resmi -->
+                        @if($isResmi)
+                            <x-nav-link :href="route('penghuni.pembayaran.index')" :active="request()->routeIs('penghuni.pembayaran.*')">
+                                {{ __('Pembayaran') }}
+                            </x-nav-link>
+
+                            <x-nav-link :href="route('penghuni.laporan.index')" :active="request()->routeIs('penghuni.laporan.*')">
+                                {{ __('Laporan') }}
+                            </x-nav-link>
+                        @endif
+                    @endif
+
+                    <!-- MENU ADMIN -->
                     @if(Auth::user()->role == 'admin')
-                        <!-- === MENU KHUSUS ADMIN === -->
+                        <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
+                            {{ __('Dashboard Admin') }}
+                        </x-nav-link>
 
-                        <!-- 1. Manajemen Kamar -->
+                        <x-nav-link :href="route('admin.booking.index')" :active="request()->routeIs('admin.booking.*')">
+                            {{ __('Konfirmasi Booking') }}
+                        </x-nav-link>
+
                         <x-nav-link :href="route('admin.kamar.index')" :active="request()->routeIs('admin.kamar.*')">
                             {{ __('Manajemen Kamar') }}
                         </x-nav-link>
 
-                        <!-- 2. Validasi Pembayaran -->
                         <x-nav-link :href="route('admin.pembayaran.index')" :active="request()->routeIs('admin.pembayaran.*')">
                             {{ __('Validasi Pembayaran') }}
                         </x-nav-link>
 
-                        <!-- 3. Laporan Masuk -->
                         <x-nav-link :href="route('admin.laporan_kerusakan.index')" :active="request()->routeIs('admin.laporan_kerusakan.*')">
                             {{ __('Laporan Masuk') }}
                         </x-nav-link>
 
-                        <!-- 4. Laporan Pemasukan -->
                         <x-nav-link :href="route('admin.laporan.pemasukan')" :active="request()->routeIs('admin.laporan.pemasukan')">
                             {{ __('Laporan Pemasukan') }}
                         </x-nav-link>
 
-                         <!-- 5. Data Penghuni (BARU) -->
-                         <x-nav-link :href="route('admin.penghuni.index')" :active="request()->routeIs('admin.penghuni.*')">
+                        <x-nav-link :href="route('admin.penghuni.index')" :active="request()->routeIs('admin.penghuni.*')">
                             {{ __('Data Penghuni') }}
                         </x-nav-link>
+                    @endif
                 </div>
             </div>
 
             <!-- Settings Dropdown -->
             <div class="hidden sm:flex sm:items-center sm:ms-6">
+                <!-- KOMPONEN NOTIFIKASI (LONCENG) -->
+                <div x-data="{ openNotif: false }" class="relative flex items-center mr-4">
+                    <button @click="openNotif = ! openNotif" class="relative p-2 text-gray-400 hover:text-gray-500 focus:outline-none transition duration-150 ease-in-out">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                        </svg>
+
+                        @php
+                            $unreadCount = 0;
+                            if (class_exists(\App\Models\Notification::class)) {
+                                $unreadCount = \App\Models\Notification::where('user_id', Auth::id())->where('is_read', false)->count();
+                            }
+                        @endphp
+
+                        @if($unreadCount > 0)
+                            <span class="absolute top-1 right-1 block h-2.5 w-2.5 rounded-full bg-red-500 ring-2 ring-white animate-pulse"></span>
+                        @endif
+                    </button>
+
+                    <div x-show="openNotif"
+                         @click.outside="openNotif = false"
+                         class="absolute right-0 top-full mt-2 w-80 bg-white rounded-xl shadow-xl py-1 z-50 border border-gray-100 overflow-hidden origin-top-right"
+                         style="display: none;">
+
+                        <div class="px-4 py-3 border-b border-gray-100 bg-gray-50 flex justify-between items-center">
+                            <span class="text-sm font-bold text-gray-800">Notifikasi</span>
+                            @if($unreadCount > 0)
+                                <form action="{{ route('notifikasi.readAll') }}" method="POST">
+                                    @csrf
+                                    <button type="submit" class="text-[10px] text-blue-600 hover:text-blue-800 font-semibold cursor-pointer">Tandai Baca Semua</button>
+                                </form>
+                            @endif
+                        </div>
+
+                        <div class="max-h-80 overflow-y-auto">
+                            @php
+                                $notifications = collect();
+                                if (class_exists(\App\Models\Notification::class)) {
+                                    $notifications = \App\Models\Notification::where('user_id', Auth::id())->latest()->limit(5)->get();
+                                }
+                            @endphp
+
+                            @forelse($notifications as $notif)
+                                <!-- HREF MENGARAH KE CONTROLLER UNTUK MARK AS READ -->
+                                <a href="{{ route('notifikasi.read', $notif->id) }}" class="block px-4 py-3 hover:bg-blue-50 transition border-b border-gray-50 last:border-0 group {{ $notif->is_read ? 'opacity-60' : 'bg-blue-50/30' }}">
+                                    <div class="flex items-start">
+                                        <div class="flex-shrink-0 mt-1 mr-3">
+                                            @if($notif->type == 'info')
+                                                <div class="w-8 h-8 rounded-full bg-blue-100 text-blue-500 flex items-center justify-center"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></div>
+                                            @elseif($notif->type == 'success')
+                                                <div class="w-8 h-8 rounded-full bg-green-100 text-green-500 flex items-center justify-center"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg></div>
+                                            @elseif($notif->type == 'warning')
+                                                <div class="w-8 h-8 rounded-full bg-yellow-100 text-yellow-500 flex items-center justify-center"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg></div>
+                                            @else
+                                                <div class="w-8 h-8 rounded-full bg-gray-100 text-gray-500 flex items-center justify-center"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg></div>
+                                            @endif
+                                        </div>
+                                        <div>
+                                            <p class="text-sm font-bold text-gray-800 group-hover:text-blue-700 {{ $notif->is_read ? 'font-normal' : '' }}">
+                                                {{ $notif->title }}
+                                            </p>
+                                            <p class="text-xs text-gray-500 mt-0.5 line-clamp-2 leading-relaxed">{{ $notif->message }}</p>
+                                            <p class="text-[10px] text-gray-400 mt-1">{{ $notif->created_at->diffForHumans() }}</p>
+                                        </div>
+                                    </div>
+                                </a>
+                            @empty
+                                <div class="px-4 py-8 text-center">
+                                    <p class="text-gray-500 text-sm font-medium">Belum ada notifikasi.</p>
+                                </div>
+                            @endforelse
+                        </div>
+                    </div>
+                </div>
+                <!-- END KOMPONEN NOTIFIKASI -->
+
                 <x-dropdown align="right" width="48">
                     <x-slot name="trigger">
                         <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none transition ease-in-out duration-150">
@@ -92,14 +195,44 @@
         </div>
     </div>
 
-    <!-- Responsive Navigation Menu -->
+    <!-- Responsive Navigation Menu (Mobile) -->
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
         <div class="pt-2 pb-3 space-y-1">
-            <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                {{ __('Dashboard') }}
-            </x-responsive-nav-link>
+            <!-- MENU PENGHUNI -->
+            @if(Auth::user()->role == 'penghuni')
+                <x-nav-link :href="route('penghuni.dashboard')" :active="request()->routeIs('penghuni.dashboard')">
+                    {{ __('Dashboard Saya') }}
+                </x-nav-link>
+
+                <!-- Cek apakah user ini statusnya sudah 'resmi' (punya booking disetujui) -->
+                @php
+                    $isResmi = false;
+                    if (class_exists(\App\Models\Booking::class)) {
+                        $isResmi = \App\Models\Booking::where('user_id', Auth::id())
+                                    ->where('status', 'disetujui')
+                                    ->exists();
+                    }
+                @endphp
+
+                <!-- Menu ini HANYA muncul kalau sudah resmi -->
+                @if($isResmi)
+                    <x-nav-link :href="route('penghuni.pembayaran.index')" :active="request()->routeIs('penghuni.pembayaran.*')">
+                        {{ __('Pembayaran') }}
+                    </x-nav-link>
+
+                    <x-nav-link :href="route('penghuni.laporan.index')" :active="request()->routeIs('penghuni.laporan.*')">
+                        {{ __('Laporan') }}
+                    </x-nav-link>
+                @endif
+            @endif
 
             @if(Auth::user()->role == 'admin')
+                <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
+                    {{ __('Dashboard Admin') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('admin.booking.index')" :active="request()->routeIs('admin.booking.*')">
+                    {{ __('Konfirmasi Booking') }}
+                </x-responsive-nav-link>
                 <x-responsive-nav-link :href="route('admin.kamar.index')" :active="request()->routeIs('admin.kamar.*')">
                     {{ __('Manajemen Kamar') }}
                 </x-responsive-nav-link>

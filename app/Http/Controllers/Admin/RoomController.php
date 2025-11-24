@@ -24,14 +24,15 @@ class RoomController extends Controller
     // 3. STORE (Simpan Data Baru)
     public function store(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'nama_kamar' => 'required|string|max:255',
             'deskripsi' => 'nullable|string',
             'harga_bulanan' => 'required|integer|min:0',
             'status' => 'required|in:tersedia,terisi',
         ]);
 
-        Room::create($request->all());
+        // Room::create($request->all());
+        Room::create($validated);
 
         return redirect()->route('admin.kamar.index')
                         ->with('success', 'Kamar berhasil ditambahkan.');
