@@ -1,4 +1,4 @@
-<x-guest-layout>
+<x-detail-layout>
     <div class="py-12 bg-gray-50 min-h-screen">
         <div class="w-full mx-auto px-4 lg:px-8">
 
@@ -122,4 +122,4 @@
             </div>
         </div>
     </div>
-</x-guest-layout>
+</x-detail-layout>
