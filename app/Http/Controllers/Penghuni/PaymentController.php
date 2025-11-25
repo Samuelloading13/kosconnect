@@ -42,6 +42,11 @@ class PaymentController extends Controller
             }
         }
 
+        $tagihanTanggal = null;
+        if ($booking) {
+            $tagihanTanggal = Carbon::parse($booking->tanggal_mulai_kos)->format('d');
+        }
+
         return view('penghuni.pembayaran.index', compact('payments', 'booking', 'sudahBayarBulanIni'));
     }
 

@@ -66,8 +66,16 @@ class BookingController extends Controller
         $waLink = "https://wa.me/$nomorAdmin?text=" . urlencode($pesan);
 
         // Arahkan user ke Link WhatsApp
-        return redirect($waLink);
+        // 4. Buat Notifikasi di Web (Lonceng) untuk Penghuni
+        Notification::create([
+            'user_id' => Auth::id(),
+            'title' => 'Booking Berhasil Diajukan',
+            'message' => 'Pengajuan booking Anda telah tercatat. Silakan lanjutkan konfirmasi ke WhatsApp Admin.',
+            'type' => 'info',
+            'link' => route('penghuni.dashboard'),
+        ]);
 
+        // 5. Buat Notifikasi ke Admin (PENTING: pindahkan sebelum redirect)
         $admin = \App\Models\User::where('role', 'admin')->first();
         if($admin) {
             \App\Models\Notification::create([
@@ -78,5 +86,24 @@ class BookingController extends Controller
                 'link' => route('admin.booking.index'),
             ]);
         }
+
+        // 6. Redirect ke WhatsApp Admin (akhir fungsi)
+        $kamar = Room::find($request->room_id);
+        $user = Auth::user();
+
+        // Nomor Admin (Sesuai request kamu)
+        $nomorAdmin = '6287756205689';
+
+        $pesan = "Halo Admin KosConnect, saya ingin mengajukan booking kamar:\n\n" .
+                "Nama: *$user->name*\n" .
+                "Kamar: *$kamar->nama_kamar*\n" .
+                "Harga: Rp " . number_format($kamar->harga_bulanan, 0, ',', '.') . "\n" .
+                "Mulai: " . date('d M Y', strtotime($request->tanggal_mulai_kos)) . "\n" .
+                "Durasi: $request->durasi_sewa Bulan\n\n" .
+                "Mohon infonya untuk proses selanjutnya. Terima kasih!";
+
+        $waLink = "https://wa.me/$nomorAdmin?text=" . urlencode($pesan);
+
+        return redirect($waLink);
     }
 }

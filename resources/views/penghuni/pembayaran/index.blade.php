@@ -27,7 +27,8 @@
                                 </p>
                                 <p class="text-sm text-yellow-700 mt-1">
                                     Silakan lakukan pembayaran sebesar <strong>Rp {{ number_format($booking->room->harga_bulanan, 0, ',', '.') }}</strong> untuk kamar <strong>{{ $booking->room->nama_kamar }}</strong>.
-                                    Jatuh tempo setiap tanggal 10.
+                                    Jatuh tempo setiap tanggal
+                                    <strong>{{ \Carbon\Carbon::parse($booking->tanggal_mulai_kos)->format('d') }}</strong>.
                                 </p>
                             </div>
                         </div>

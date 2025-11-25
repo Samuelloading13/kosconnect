@@ -14,5 +14,6 @@ class Room extends Model
         'deskripsi',
         'harga_bulanan',
         'status',
+        'foto',
     ];
 }

@@ -27,6 +27,7 @@
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nama Kamar</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Harga/Bulan</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Foto</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Aksi</th>
                                 </tr>
                             </thead>
@@ -39,6 +40,15 @@
                                                 <span class="px-2 inline-flex text-xs font-semibold rounded-full {{ $item->status == 'tersedia' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
                                                     {{ $item->status }}
                                                 </span>
+                                            </td>
+                                            <td class="px-6 py-4">
+                                                @if ($item->foto)
+                                                    <img src="{{ asset('storage/' . $item->foto) }}"
+                                                        alt="Foto Kamar"
+                                                        class="h-20 rounded">
+                                                @else
+                                                    <span class="text-gray-500">Tidak ada foto</span>
+                                                @endif
                                             </td>
                                             <td class="px-6 py-4 text-sm font-medium flex space-x-4">
                                                 <!-- Tombol EDIT -->

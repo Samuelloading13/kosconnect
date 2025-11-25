@@ -10,7 +10,7 @@
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900 dark:text-gray-100">
 
-                    <form method="POST" action="{{ route('admin.kamar.store') }}">
+                    <form method="POST" action="{{ route('admin.kamar.store') }}" enctype="multipart/form-data">
                         @csrf
                         <div>
                             <x-input-label for="nama_kamar" :value="__('Nama Kamar')" />
@@ -30,6 +30,11 @@
                                 <option value="tersedia">Tersedia</option>
                                 <option value="terisi">Terisi</option>
                             </select>
+                        </div>
+                        <div class="mt-4">
+                            <x-input-label for="foto" :value="__('Foto Kamar')" />
+                            <input id="foto" type="file" name="foto"
+                                class="block mt-1 w-full text-gray-900 dark:text-gray-300" />
                         </div>
                         <div class="flex items-center justify-end mt-4">
                             <x-primary-button class="ms-4">

@@ -15,6 +15,12 @@
             <div class="flex items-center">
                 <span class="font-bold text-2xl text-blue-600 mr-2">🏠</span>
                 <span class="font-bold text-xl text-gray-800">KosConnect</span>
+
+                <!-- Tombol Hubungi Admin -->
+                <a href="https://wa.me/6287756205689"
+                    class="ml-6 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold py-2 px-4 rounded-full transition shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                    Hubungi Admin
+                </a>
             </div>
 
             <!-- Menu Kanan (Login/Register/Dashboard) -->
@@ -111,16 +117,25 @@
                 @foreach ($kamar as $item)
                     <div class="group bg-white rounded-2xl shadow-sm hover:shadow-xl border border-gray-100 overflow-hidden transition duration-300 flex flex-col h-full">
                         <!-- Placeholder Gambar Kamar -->
-                        <div class="relative h-56 bg-gray-200 w-full flex items-center justify-center overflow-hidden">
-                            <!-- Overlay gradient saat hover -->
-                            <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition duration-300 z-10"></div>
-
-                            <svg class="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                        <div class="relative h-56 w-full overflow-hidden rounded-t-2xl">
+                            @if ($item->foto)
+                                <img src="{{ asset('storage/' . $item->foto) }}"
+                                    alt="Foto Kamar"
+                                    class="w-full h-full object-cover">
+                            @else
+                                <div class="w-full h-full bg-gray-200 flex items-center justify-center">
+                                    <svg class="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                    </svg>
+                                </div>
+                            @endif
 
                             <span class="absolute top-4 right-4 bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-md z-20 uppercase tracking-wider">
-                                Tersedia
+                                {{ $item->status }}
                             </span>
                         </div>
+
 
                         <div class="p-6 flex-1 flex flex-col">
                             <div class="mb-4">
