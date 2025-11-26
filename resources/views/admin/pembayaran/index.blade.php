@@ -61,10 +61,16 @@
                                                 </div>
                                             @else
                                                 {{-- FORM UPDATE STATUS (JIKA BELUM LUNAS) --}}
-                                                <form action="{{ route('admin.pembayaran.update', $pay->id) }}" method="POST" class="flex items-center">
+                                                <form action="{{ route('admin.pembayaran.update', $pay->id) }}" method="POST" class="flex items-center"
+                                                      onsubmit="
+                                                        var selectedValue = this.querySelector('select[name=\'status\']').value;
+                                                        if(selectedValue == 'sudah membayar') {
+                                                            return confirm('PERINGATAN PENTING:\n\nAnda akan mengubah status menjadi LUNAS.\nStatus ini akan MENGUNCI data pembayaran dan TIDAK BISA diubah lagi.\n\nApakah Anda yakin uang sudah masuk?');
+                                                        }
+                                                      ">
                                                     @csrf
                                                     @method('PATCH')
-                                                    <select name="status" class="text-xs border-gray-300 rounded-md shadow-sm dark:bg-gray-700 dark:text-white mr-2">
+                                                    <select name="status" class="text-xs border-gray-300 rounded-md shadow-sm dark:bg-gray-700 dark:text-white mr-2 focus:ring-indigo-500">
                                                         <option value="pending" {{ $pay->status == 'pending' ? 'selected' : '' }}>Pending</option>
                                                         <option value="sudah membayar">Terima (Lunas)</option>
                                                         <option value="belum bayar" {{ $pay->status == 'belum bayar' ? 'selected' : '' }}>Tolak</option>

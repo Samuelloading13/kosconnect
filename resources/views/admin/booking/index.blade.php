@@ -66,22 +66,26 @@
                                         </form>
 
                                     @elseif($booking->status == 'disetujui')
-                                        {{-- Form Perpanjang Sewa --}}
-                                        <form action="{{ route('admin.booking.perpanjang', $booking->id) }}" method="POST" class="inline-block" onsubmit="return confirm('Perpanjang durasi sewa penghuni ini?');">
-                                            @csrf
-                                            <div class="flex items-center space-x-1 bg-gray-50 p-1 rounded border">
-                                                <input type="number" name="bulan_tambah" min="1" value="1" class="w-12 px-1 py-0 text-xs border-gray-300 rounded focus:ring-0" required>
-                                                <button type="submit" class="text-green-700 hover:text-green-900 text-xs font-bold px-1">
-                                                    +Bln
+                                        {{-- [FITUR BARU] Form Perpanjang Sewa --}}
+                                        <div class="inline-block bg-gray-50 border border-gray-200 rounded p-1 mr-2 align-middle">
+                                            <form action="{{ route('admin.booking.perpanjang', $booking->id) }}" method="POST" class="flex items-center space-x-1"
+                                                  onsubmit="return confirm('Yakin ingin menambah durasi sewa penghuni ini? Tanggal jatuh tempo akan diperbarui.');">
+                                                @csrf
+                                                <span class="text-xs text-gray-500">Tambah:</span>
+                                                <input type="number" name="bulan_tambah" min="1" value="1" class="w-10 px-1 py-0 text-xs border-gray-300 rounded focus:ring-indigo-500 focus:border-indigo-500 text-center" required>
+                                                <span class="text-xs text-gray-500">Bln</span>
+                                                <button type="submit" class="bg-indigo-600 text-white text-xs px-2 py-0.5 rounded hover:bg-indigo-700" title="Simpan Perpanjangan">
+                                                    +
                                                 </button>
-                                            </div>
-                                        </form>
+                                            </form>
+                                        </div>
+
                                         {{-- Tombol Selesai --}}
-                                        <form action="{{ route('admin.booking.update', $booking->id) }}" method="POST" class="inline-block ml-2">
+                                        <form action="{{ route('admin.booking.update', $booking->id) }}" method="POST" class="inline-block align-middle">
                                             @csrf @method('PATCH')
                                             <input type="hidden" name="status" value="selesai">
-                                            <button type="submit" class="text-gray-500 hover:text-gray-700 text-xs underline" onclick="return confirm('Tandai sewa sebagai selesai (Penghuni Keluar)?')">
-                                                Selesai/Keluar
+                                            <button type="submit" class="text-gray-400 hover:text-gray-600 text-xs underline" onclick="return confirm('Tandai sewa sebagai selesai (Penghuni Keluar)?')">
+                                                Selesai
                                             </button>
                                         </form>
                                     @else
