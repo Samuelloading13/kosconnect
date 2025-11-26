@@ -10,13 +10,14 @@ class Booking extends Model
     use HasFactory;
 
     protected $fillable = [
-        'user_id',
-        'room_id',
-        'tanggal_mulai_kos',
-        'durasi_sewa',
-        'status',
-        'catatan',
-        'ktp_foto', // <-- Kolom baru ditambahkan
+    'user_id',
+    'room_id',
+    'tanggal_mulai_kos',
+    'durasi_sewa',
+    'status',
+    'catatan',
+    'ktp_foto',
+    'tanggal_berakhir_kos', // <--- TAMBAHKAN INI
     ];
 
     public function user()
