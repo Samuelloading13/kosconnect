@@ -7,59 +7,78 @@
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
-            @if(isset($booking) && $booking)
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">
+
+            {{-- BAGIAN 1: JIKA BELUM PUNYA KOS (STATUS CALON) --}}
+            @if($statusPenghuni == 'calon')
+                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border-l-4 border-blue-500">
                     <div class="p-6 text-gray-900">
-                        <h3 class="text-lg font-bold mb-4">Status Sewa Saya</h3>
+                        <h3 class="text-lg font-bold text-gray-800 mb-2">Selamat Datang di KosConnect!</h3>
+                        <p class="text-gray-600 mb-6">
+                            Anda belum terdaftar di kamar manapun. Silakan cari kamar yang tersedia dan ajukan sewa sekarang.
+                        </p>
 
-                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 text-center">
-                            <div class="p-4 bg-indigo-50 rounded-lg">
-                                <p class="text-sm text-gray-500">Kamar</p>
-                                <p class="text-xl font-bold text-indigo-700">{{ $booking->room->nama_kamar ?? '-' }}</p>
-                            </div>
+                        {{-- TOMBOL CARI KAMAR (MENGARAH KE HALAMAN DEPAN) --}}
+                        <a href="{{ route('home') }}" class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 focus:bg-blue-700 active:bg-blue-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                            🔍 Cari Kos Sekarang
+                        </a>
+                    </div>
+                </div>
 
-                            <div class="p-4 bg-gray-50 rounded-lg">
-                                <p class="text-sm text-gray-500">Mulai Sewa</p>
-                                <p class="font-semibold">{{ $booking->tanggal_mulai_kos->format('d M Y') }}</p>
-                            </div>
-
-                            <div class="p-4 bg-gray-50 rounded-lg">
-                                <p class="text-sm text-gray-500">Jatuh Tempo</p>
-                                <p class="font-semibold text-red-600">
-                                    {{ $booking->tanggal_berakhir_kos ? $booking->tanggal_berakhir_kos->format('d M Y') : '-' }}
-                                </p>
-                            </div>
-
-                            @php
-                                // Perhitungan langsung dari objek tanggal di model
-                                $sisaHari = now()->diffInDays($booking->tanggal_berakhir_kos, false);
-                            @endphp
-
-                            <div class="p-4 {{ $sisaHari < 0 ? 'bg-red-100' : ($sisaHari < 7 ? 'bg-yellow-50' : 'bg-green-50') }} rounded-lg">
-                                <p class="text-sm text-gray-500">Sisa Durasi</p>
-                                <p class="text-xl font-bold {{ $sisaHari < 0 ? 'text-red-700' : 'text-gray-800' }}">
-                                    @if($sisaHari < 0)
-                                        Lewat {{ abs(intval($sisaHari)) }} Hari
-                                    @else
-                                        {{ intval($sisaHari) }} Hari Lagi
-                                    @endif
-                                </p>
-                            </div>
+            {{-- BAGIAN 2: JIKA STATUS PENDING (MENUNGGU PERSETUJUAN) --}}
+            @elseif($statusPenghuni == 'pending')
+                <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4">
+                    <div class="flex">
+                        <div class="ml-3">
+                            <p class="text-sm text-yellow-700 font-bold">
+                                Permintaan sewa Anda sedang menunggu persetujuan Admin.
+                            </p>
+                            <p class="text-xs text-yellow-600 mt-1">
+                                Mohon tunggu konfirmasi selanjutnya.
+                            </p>
                         </div>
                     </div>
                 </div>
-            @else
-                <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4">
+
+            {{-- BAGIAN 3: JIKA DITOLAK --}}
+            @elseif($statusPenghuni == 'ditolak')
+                <div class="bg-red-50 border-l-4 border-red-400 p-4">
                     <div class="flex">
                         <div class="ml-3">
-                            <p class="text-sm text-yellow-700">
-                                Anda belum memiliki sewa aktif. Silakan pilih kamar terlebih dahulu.
+                            <p class="text-sm text-red-700 font-bold">
+                                Maaf, pengajuan sewa Anda ditolak.
                             </p>
+                            <div class="mt-2">
+                                <a href="{{ route('home') }}" class="text-sm underline text-red-600 hover:text-red-800">
+                                    Cari Kamar Lain
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>
             @endif
 
-            </div>
+            {{-- BAGIAN 4: KARTU STATISTIK (TAMPIL JIKA SUDAH RESMI) --}}
+            @if($statusPenghuni == 'resmi' && $booking)
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
+                        <div class="text-gray-500 text-sm">Kamar Anda</div>
+                        <div class="text-2xl font-bold text-indigo-600">{{ $booking->room->nama_kamar ?? '-' }}</div>
+                    </div>
+
+                    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
+                        <div class="text-gray-500 text-sm">Tagihan Pending</div>
+                        <div class="text-2xl font-bold {{ $tagihanPending > 0 ? 'text-red-600' : 'text-green-600' }}">
+                            {{ $tagihanPending }}
+                        </div>
+                    </div>
+
+                    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
+                        <div class="text-gray-500 text-sm">Laporan Aktif</div>
+                        <div class="text-2xl font-bold text-blue-600">{{ $laporanAktif }}</div>
+                    </div>
+                </div>
+            @endif
+
+        </div>
     </div>
 </x-app-layout>

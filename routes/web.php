@@ -22,8 +22,9 @@ use App\Models\Booking;
 use App\Http\Controllers\Penghuni\ReportController;
 use App\Http\Controllers\Penghuni\PaymentController;
 use App\Http\Controllers\Penghuni\DashboardController;
-use App\Http\Controllers\BookingController; // <-- Untuk User Booking Awal
+use App\Http\Controllers\BookingController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\NotificationController; // <--- TAMBAHKAN INI
 use App\Models\Report;
 
 /*
@@ -43,10 +44,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/booking', [BookingController::class, 'store'])->name('booking.store');
 });
 
-// Dashboard Umum (Redirect sesuai role)
-Route::get('/dashboard', function () {
-        if (auth()->user()->role === 'admin') {
+// Dashboard Umum & Notifikasi
+Route::middleware(['auth', 'verified'])->group(function () {
 
+    // Route Dashboard
+    Route::get('/dashboard', function () {
+        if (auth()->user()->role === 'admin') {
             $totalPenghuni  = User::where('role', 'penghuni')->count();
             $kamarKosong    = Room::where('status', 'tersedia')->count();
             $kamarTerisi    = Room::where('status', 'terisi')->count();
@@ -59,72 +62,50 @@ Route::get('/dashboard', function () {
                 'bookingPending'
             ));
         }
-
         return redirect()->route('penghuni.dashboard');
+    })->name('dashboard');
 
-    })->middleware(['auth', 'verified'])->name('dashboard');
+    // === [TAMBAHKAN ROUTE NOTIFIKASI DI SINI] ===
+    Route::get('/notifikasi/baca-semua', [NotificationController::class, 'markAllAsRead'])->name('notifikasi.readAll');
+    Route::get('/notifikasi/{id}/baca', [NotificationController::class, 'markAsReadAndRedirect'])->name('notifikasi.read');
+});
 
 
 // Profile Routes
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    // Delete profile dihapus sesuai request
 });
 
 require __DIR__.'/auth.php';
 
 
 // ==========================================
-// 2. GRUP RUTE ADMIN (MODUL 1 LENGKAP)
+// 2. GRUP RUTE ADMIN
 // ==========================================
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
-
-    // A. Manajemen Kamar (CRUD)
     Route::resource('kamar', RoomController::class);
-
-    // B. Laporan Pemasukan
     Route::get('laporan-pemasukan', [AdminLaporanController::class, 'index'])->name('laporan.pemasukan');
-
-    // C. Validasi Pembayaran
     Route::get('/pembayaran', [AdminPaymentController::class, 'index'])->name('pembayaran.index');
     Route::patch('/pembayaran/{id}', [AdminPaymentController::class, 'update'])->name('pembayaran.update');
-
-    // D. Respons Laporan Kerusakan
     Route::get('/laporan-kerusakan', [AdminLaporanKerusakanController::class, 'index'])->name('laporan_kerusakan.index');
     Route::patch('/laporan-kerusakan/{id}', [AdminLaporanKerusakanController::class, 'update'])->name('laporan_kerusakan.update');
-
-    // E. Data Penghuni
     Route::get('/data-penghuni', [AdminPenghuniController::class, 'index'])->name('penghuni.index');
     Route::delete('/data-penghuni/{id}', [AdminPenghuniController::class, 'destroy'])->name('penghuni.destroy');
-
-    // F. Manajemen Booking
-    // Rute resource standar untuk index (list) dan update (approve/reject)
     Route::resource('booking', AdminBookingController::class)->only(['index', 'update']);
-
-    // === [AKSI TARGET ANDA] ===
-    // Rute POST khusus untuk fitur perpanjangan sewa
-    Route::post('/booking/{id}/perpanjang', [AdminBookingController::class, 'perpanjang'])
-        ->name('booking.perpanjang');
+    Route::post('/booking/{id}/perpanjang', [AdminBookingController::class, 'perpanjang'])->name('booking.perpanjang');
 });
 
 
 // ==========================================
-// 3. GRUP RUTE PENGHUNI (MODUL 2 LENGKAP)
+// 3. GRUP RUTE PENGHUNI
 // ==========================================
 Route::middleware(['auth', 'role:penghuni'])->prefix('penghuni')->name('penghuni.')->group(function () {
-
-    // Dashboard Khusus Penghuni
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-
-    // A. Fitur Laporan Kerusakan & Request
     Route::get('/laporan', [ReportController::class, 'index'])->name('laporan.index');
     Route::get('/laporan/buat', [ReportController::class, 'create'])->name('laporan.create');
     Route::post('/laporan', [ReportController::class, 'store'])->name('laporan.store');
-
-    // B. Fitur Pembayaran
     Route::get('/pembayaran', [PaymentController::class, 'index'])->name('pembayaran.index');
     Route::get('/pembayaran/buat', [PaymentController::class, 'create'])->name('pembayaran.create');
     Route::post('/pembayaran', [PaymentController::class, 'store'])->name('pembayaran.store');
-
 });

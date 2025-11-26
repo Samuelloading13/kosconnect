@@ -19,7 +19,16 @@
 
         <div>
             <x-input-label for="name" :value="__('Name')" />
-            <x-text-input id="name" name="name" type="text" class="mt-1 block w-full" :value="old('name', $user->name)" required autofocus autocomplete="name" />
+
+            {{-- Input Nama dikunci (readonly) dan diberi background abu-abu --}}
+            <x-text-input id="name" name="name" type="text"
+                class="mt-1 block w-full bg-gray-100 text-gray-500 cursor-not-allowed"
+                :value="old('name', $user->name)"
+                required
+                readonly
+                title="Nama tidak dapat diubah" />
+
+            <p class="text-xs text-red-500 mt-1">*Nama akun tidak dapat diubah.</p>
             <x-input-error class="mt-2" :messages="$errors->get('name')" />
         </div>
 
