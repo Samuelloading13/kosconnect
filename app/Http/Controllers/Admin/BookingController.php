@@ -5,59 +5,58 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
 use Illuminate\Http\Request;
-use Carbon\Carbon; // Import Carbon untuk manipulasi tanggal
+use Carbon\Carbon; // Import library tanggal
 
 class BookingController extends Controller
 {
+    // 1. READ (Lihat Daftar Booking)
     public function index()
     {
-        // Ambil semua booking dengan relasi user dan room
         $bookings = Booking::with(['user', 'room'])->latest()->paginate(10);
         return view('admin.booking.index', compact('bookings'));
     }
 
-    // Method UPDATE untuk Menyetujui/Menolak/Menyelesaikan Booking
+    // 2. UPDATE (Proses Persetujuan & Hitung Jatuh Tempo)
     public function update(Request $request, $id)
     {
         $request->validate(['status' => 'required|in:disetujui,ditolak,selesai']);
 
         $booking = Booking::findOrFail($id);
 
-        // LOGIKA 1: Jika DISETUJUI
+        // --- LOGIKA HITUNG JATUH TEMPO ---
         if ($request->status == 'disetujui') {
-            // Hitung Tanggal Berakhir (Jatuh Tempo)
+
+            // 1. Ambil tanggal mulai & durasi
             $tglMulai = Carbon::parse($booking->tanggal_mulai_kos);
             $durasi = (int) $booking->durasi_sewa;
 
-            // Simpan tanggal berakhir ke database
+            // 2. Hitung tanggal berakhir (Jatuh Tempo)
+            // Contoh: 1 Jan + 1 Bulan = 1 Feb
             $booking->tanggal_berakhir_kos = $tglMulai->copy()->addMonths($durasi)->format('Y-m-d');
 
-            // Update Status Kamar jadi 'terisi'
+            // 3. Ubah status kamar menjadi 'terisi'
             $booking->room->update(['status' => 'terisi']);
 
-            $pesan = "Booking disetujui. Masa sewa hingga " . Carbon::parse($booking->tanggal_berakhir_kos)->format('d M Y');
+            $pesan = "Booking disetujui. Masa sewa aktif hingga " . Carbon::parse($booking->tanggal_berakhir_kos)->format('d M Y');
+
         }
-        // LOGIKA 2: Jika DITOLAK
+        elseif ($request->status == 'selesai') {
+             // Jika sewa selesai/penghuni keluar, kamar jadi 'tersedia' lagi
+             $booking->room->update(['status' => 'tersedia']);
+             $pesan = "Masa sewa telah diselesaikan. Kamar kembali tersedia.";
+        }
         elseif ($request->status == 'ditolak') {
             $pesan = "Booking ditolak.";
         }
-        // LOGIKA 3: Jika SELESAI (Penghuni Keluar)
-        elseif ($request->status == 'selesai') {
-             // Kamar jadi tersedia lagi
-             $booking->room->update(['status' => 'tersedia']);
-             $pesan = "Masa sewa telah berakhir/selesai.";
-        }
 
+        // Simpan perubahan status & tanggal
         $booking->status = $request->status;
-        $booking->save(); // Simpan perubahan (termasuk tanggal_berakhir_kos)
-
-        // Opsional: Kirim Notifikasi (Jika model Notification aktif)
-        // \App\Models\Notification::create([...]);
+        $booking->save();
 
         return redirect()->back()->with('success', $pesan);
     }
 
-    // Method PERPANJANG SEWA (Tambahan)
+    // 3. PERPANJANG SEWA (Fitur Tambahan)
     public function perpanjang(Request $request, $id)
     {
         $request->validate(['bulan_tambah' => 'required|integer|min:1']);
@@ -67,16 +66,20 @@ class BookingController extends Controller
         // Tambah durasi sewa
         $booking->durasi_sewa += $request->bulan_tambah;
 
-        // Update tanggal berakhir
+        // Update tanggal berakhir (Jatuh Tempo Baru)
         if ($booking->tanggal_berakhir_kos) {
-            $booking->tanggal_berakhir_kos = Carbon::parse($booking->tanggal_berakhir_kos)->addMonths($request->bulan_tambah)->format('Y-m-d');
+            $booking->tanggal_berakhir_kos = Carbon::parse($booking->tanggal_berakhir_kos)
+                                            ->addMonths($request->bulan_tambah)
+                                            ->format('Y-m-d');
         } else {
-            // Fallback jika null (hitung dari awal)
-            $booking->tanggal_berakhir_kos = Carbon::parse($booking->tanggal_mulai_kos)->addMonths($booking->durasi_sewa)->format('Y-m-d');
+            // Fallback jika tanggal berakhir kosong
+            $booking->tanggal_berakhir_kos = Carbon::parse($booking->tanggal_mulai_kos)
+                                            ->addMonths($booking->durasi_sewa)
+                                            ->format('Y-m-d');
         }
 
         $booking->save();
 
-        return redirect()->back()->with('success', 'Masa sewa berhasil diperpanjang ' . $request->bulan_tambah . ' bulan.');
+        return redirect()->back()->with('success', 'Sewa berhasil diperpanjang ' . $request->bulan_tambah . ' bulan.');
     }
 }
