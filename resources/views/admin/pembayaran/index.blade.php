@@ -60,7 +60,7 @@
                                                     </span>
                                                 </div>
                                             @else
-                                                {{-- FORM UPDATE STATUS (JIKA BELUM LUNAS) --}}
+                                                {{-- FORM UPDATE STATUS DENGAN KONFIRMASI JS --}}
                                                 <form action="{{ route('admin.pembayaran.update', $pay->id) }}" method="POST" class="flex items-center"
                                                       onsubmit="
                                                         var selectedValue = this.querySelector('select[name=\'status\']').value;
@@ -70,7 +70,7 @@
                                                       ">
                                                     @csrf
                                                     @method('PATCH')
-                                                    <select name="status" class="text-xs border-gray-300 rounded-md shadow-sm dark:bg-gray-700 dark:text-white mr-2 focus:ring-indigo-500">
+                                                    <select name="status" class="text-xs border-gray-300 rounded-md shadow-sm dark:bg-gray-700 dark:text-white mr-2">
                                                         <option value="pending" {{ $pay->status == 'pending' ? 'selected' : '' }}>Pending</option>
                                                         <option value="sudah membayar">Terima (Lunas)</option>
                                                         <option value="belum bayar" {{ $pay->status == 'belum bayar' ? 'selected' : '' }}>Tolak</option>
