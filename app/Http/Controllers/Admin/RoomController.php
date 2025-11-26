@@ -74,11 +74,13 @@ class RoomController extends Controller
         $kamar = Room::findOrFail($id);
 
         // VALIDASI PENTING: Cegah hapus jika kamar terisi
+        // Jika ada penghuni, kembalikan error dan batalkan penghapusan
         if ($kamar->status == 'terisi') {
             return redirect()->route('admin.kamar.index')
                 ->with('error', 'GAGAL: Kamar tidak bisa dihapus karena sedang terisi (Ada Penghuni).');
         }
 
+        // Hapus foto jika ada
         if ($kamar->foto && Storage::disk('public')->exists($kamar->foto)) {
             Storage::disk('public')->delete($kamar->foto);
         }

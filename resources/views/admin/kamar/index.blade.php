@@ -1,104 +1,102 @@
-<?php
+<x-app-layout>
+    <x-slot name="header">
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+            {{ __('Manajemen Kamar') }}
+        </h2>
+    </x-slot>
 
-namespace App\Http\Controllers\Admin;
+    <div class="py-12">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                <div class="p-6 text-gray-900">
 
-use App\Http\Controllers\Controller;
-use App\Models\Room;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
+                    {{-- Tombol Tambah & Notifikasi --}}
+                    <div class="flex justify-between items-center mb-4">
+                        <a href="{{ route('admin.kamar.create') }}" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition">
+                            + Tambah Kamar
+                        </a>
+                    </div>
 
-class RoomController extends Controller
-{
-    // 1. READ (Tampilkan semua)
-    public function index()
-    {
-        $kamar = Room::latest()->paginate(10);
-        return view('admin.kamar.index', compact('kamar'));
-    }
+                    {{-- Pesan Sukses --}}
+                    @if(session('success'))
+                        <div class="mb-4 p-4 bg-green-100 text-green-700 rounded border border-green-200">
+                            {{ session('success') }}
+                        </div>
+                    @endif
 
-    // 2. CREATE (Tampilkan Form)
-    public function create()
-    {
-        return view('admin.kamar.create');
-    }
+                    {{-- Pesan Error (misal gagal hapus) --}}
+                    @if(session('error'))
+                        <div class="mb-4 p-4 bg-red-100 text-red-700 rounded border border-red-200">
+                            {{ session('error') }}
+                        </div>
+                    @endif
 
-    // 3. STORE (Simpan Data Baru)
-    public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'nama_kamar'    => 'required|string|max:255',
-            'deskripsi'     => 'nullable|string',
-            'harga_bulanan' => 'required|integer|min:0',
-            'status'        => 'required|in:tersedia,terisi',
-            'foto'          => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-        ]);
+                    {{-- Tabel Daftar Kamar --}}
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200 border">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Foto</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Kamar</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Harga/Bulan</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                @forelse($kamar as $item)
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        @if($item->foto)
+                                            <img src="{{ asset('storage/' . $item->foto) }}" alt="Foto Kamar" class="w-16 h-16 object-cover rounded shadow-sm">
+                                        @else
+                                            <div class="w-16 h-16 bg-gray-100 rounded flex items-center justify-center text-gray-400 text-xs">
+                                                No Image
+                                            </div>
+                                        @endif
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm font-medium text-gray-900">{{ $item->nama_kamar }}</div>
+                                        <div class="text-xs text-gray-500 truncate w-40">{{ $item->deskripsi }}</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                                        Rp {{ number_format($item->harga_bulanan, 0, ',', '.') }}
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $item->status == 'tersedia' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
+                                            {{ ucfirst($item->status) }}
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                        <div class="flex space-x-3">
+                                            <a href="{{ route('admin.kamar.edit', $item->id) }}" class="text-indigo-600 hover:text-indigo-900 font-bold">Edit</a>
 
-        // Upload foto jika ada
-        if ($request->hasFile('foto')) {
-            $validated['foto'] = $request->file('foto')->store('foto_kamar', 'public');
-        }
+                                            <form action="{{ route('admin.kamar.destroy', $item->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus kamar ini?');">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="text-red-600 hover:text-red-900 font-bold">Hapus</button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                                @empty
+                                <tr>
+                                    <td colspan="5" class="px-6 py-10 text-center text-gray-500 italic">
+                                        Belum ada data kamar yang ditambahkan.
+                                    </td>
+                                </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
 
-        Room::create($validated);
+                    {{-- Pagination --}}
+                    <div class="mt-4">
+                        {{ $kamar->links() }}
+                    </div>
 
-        return redirect()->route('admin.kamar.index')
-                        ->with('success', 'Kamar berhasil ditambahkan.');
-    }
-
-    // 4. EDIT (Tampilkan Form Edit dengan Data Lama)
-    public function edit($id)
-    {
-        $kamar = Room::findOrFail($id);
-        return view('admin.kamar.edit', compact('kamar'));
-    }
-
-    // 5. UPDATE (Simpan Perubahan)
-    public function update(Request $request, $id)
-    {
-        $validated = $request->validate([
-            'nama_kamar'    => 'required|string|max:255',
-            'deskripsi'     => 'nullable|string',
-            'harga_bulanan' => 'required|integer|min:0',
-            'status'        => 'required|in:tersedia,terisi',
-            'foto'          => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-        ]);
-
-        $kamar = Room::findOrFail($id);
-
-        // Jika ada foto baru, hapus foto lama dan upload baru
-        if ($request->hasFile('foto')) {
-            if ($kamar->foto && Storage::disk('public')->exists($kamar->foto)) {
-                Storage::disk('public')->delete($kamar->foto);
-            }
-
-            $validated['foto'] = $request->file('foto')->store('foto_kamar', 'public');
-        }
-
-        $kamar->update($validated);
-
-        return redirect()->route('admin.kamar.index')
-                        ->with('success', 'Data kamar berhasil diperbarui.');
-    }
-
-    // 6. DESTROY (Hapus Data - Dengan Validasi)
-    public function destroy($id)
-    {
-        $kamar = Room::findOrFail($id);
-
-        // === UPDATE PENTING: CEGAH HAPUS JIKA TERISI ===
-        if ($kamar->status == 'terisi') {
-            // Redirect kembali dengan pesan error
-            return redirect()->route('admin.kamar.index')
-                ->with('error', 'GAGAL: Kamar tidak bisa dihapus karena sedang terisi (Ada Penghuni).');
-        }
-
-        // Hapus foto fisik jika ada
-        if ($kamar->foto && Storage::disk('public')->exists($kamar->foto)) {
-            Storage::disk('public')->delete($kamar->foto);
-        }
-
-        $kamar->delete();
-
-        return redirect()->route('admin.kamar.index')
-                        ->with('success', 'Kamar berhasil dihapus.');
-    }
-}
+                </div>
+            </div>
+        </div>
+    </div>
+</x-app-layout>

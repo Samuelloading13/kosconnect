@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
 use Illuminate\Http\Request;
-use Carbon\Carbon; // Import library tanggal
+use Carbon\Carbon; // WAJIB: Import Carbon untuk manipulasi tanggal
 
 class BookingController extends Controller
 {
@@ -41,9 +41,9 @@ class BookingController extends Controller
 
         }
         elseif ($request->status == 'selesai') {
-             // Jika sewa selesai/penghuni keluar, kamar jadi 'tersedia' lagi
-             $booking->room->update(['status' => 'tersedia']);
-             $pesan = "Masa sewa telah diselesaikan. Kamar kembali tersedia.";
+            // Jika sewa selesai/penghuni keluar, kamar jadi 'tersedia' lagi
+            $booking->room->update(['status' => 'tersedia']);
+            $pesan = "Masa sewa telah diselesaikan. Kamar kembali tersedia.";
         }
         elseif ($request->status == 'ditolak') {
             $pesan = "Booking ditolak.";
@@ -72,7 +72,7 @@ class BookingController extends Controller
                                             ->addMonths($request->bulan_tambah)
                                             ->format('Y-m-d');
         } else {
-            // Fallback jika tanggal berakhir kosong
+            // Fallback jika tanggal berakhir kosong (misal data lama)
             $booking->tanggal_berakhir_kos = Carbon::parse($booking->tanggal_mulai_kos)
                                             ->addMonths($booking->durasi_sewa)
                                             ->format('Y-m-d');

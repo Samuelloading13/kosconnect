@@ -13,7 +13,10 @@ use App\Http\Controllers\Admin\LaporanController as AdminLaporanController;
 use App\Http\Controllers\Admin\PaymentController as AdminPaymentController;
 use App\Http\Controllers\Admin\LaporanKerusakanController as AdminLaporanKerusakanController;
 use App\Http\Controllers\Admin\PenghuniController as AdminPenghuniController;
-use App\Http\Controllers\Admin\BookingController as AdminBookingController; // <-- Untuk Approve & Perpanjang
+use App\Http\Controllers\Admin\BookingController as AdminBookingController;
+use App\Models\User;
+use App\Models\Room;
+use App\Models\Booking;
 
 // B. Controller Penghuni & Umum
 use App\Http\Controllers\Penghuni\ReportController;
@@ -42,8 +45,24 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 // Dashboard Umum (Redirect sesuai role)
 Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+        if (auth()->user()->role === 'admin') {
+
+            $totalPenghuni  = User::where('role', 'penghuni')->count();
+            $kamarKosong    = Room::where('status', 'tersedia')->count();
+            $kamarTerisi    = Room::where('status', 'terisi')->count();
+            $bookingPending = Booking::where('status', 'pending')->count();
+
+            return view('dashboard', compact(
+                'totalPenghuni',
+                'kamarKosong',
+                'kamarTerisi',
+                'bookingPending'
+            ));
+        }
+
+        return redirect()->route('penghuni.dashboard');
+
+    })->middleware(['auth', 'verified'])->name('dashboard');
 
 
 // Profile Routes
@@ -79,10 +98,14 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/data-penghuni', [AdminPenghuniController::class, 'index'])->name('penghuni.index');
     Route::delete('/data-penghuni/{id}', [AdminPenghuniController::class, 'destroy'])->name('penghuni.destroy');
 
-    // F. Manajemen Booking (Approve & Perpanjang)
+    // F. Manajemen Booking
+    // Rute resource standar untuk index (list) dan update (approve/reject)
     Route::resource('booking', AdminBookingController::class)->only(['index', 'update']);
-    // RUTE KHUSUS PERPANJANG SEWA
-    Route::post('/booking/{id}/perpanjang', [AdminBookingController::class, 'perpanjang'])->name('booking.perpanjang');
+
+    // === [AKSI TARGET ANDA] ===
+    // Rute POST khusus untuk fitur perpanjangan sewa
+    Route::post('/booking/{id}/perpanjang', [AdminBookingController::class, 'perpanjang'])
+        ->name('booking.perpanjang');
 });
 
 

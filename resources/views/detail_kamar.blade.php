@@ -36,44 +36,36 @@
                                         </h3>
 
                                         <!-- FORM UPDATE: enctype ditambahkan di sini -->
-                                        <form action="{{ route('booking.store') }}" method="POST" enctype="multipart/form-data" class="space-y-5">
+                                        <form action="{{ route('booking.store') }}" method="POST" enctype="multipart/form-data" class="space-y-4">
                                             @csrf
                                             <input type="hidden" name="room_id" value="{{ $kamar->id }}">
 
                                             <div>
-                                                <label class="block text-sm font-medium text-gray-700 mb-1">Tanggal Mulai Ngekos</label>
-                                                <input type="date" name="tanggal_mulai_kos" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 transition duration-150 ease-in-out" required>
+                                                <x-input-label for="tanggal_mulai_kos" :value="__('Tanggal Mulai Kos')" />
+                                                <x-text-input id="tanggal_mulai_kos" class="block mt-1 w-full" type="date" name="tanggal_mulai_kos" required />
                                             </div>
 
                                             <div>
-                                                <label class="block text-sm font-medium text-gray-700 mb-1">Rencana Durasi (Bulan)</label>
-                                                <div class="relative rounded-md shadow-sm">
-                                                    <input type="number" name="durasi_sewa" min="1" value="1" class="block w-full rounded-md border-gray-300 pl-3 pr-12 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" required>
-                                                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                                                        <span class="text-gray-500 sm:text-sm">Bulan</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <!-- INPUT KTP BARU (WAJIB) -->
-                                            <div class="bg-blue-50 p-4 rounded-lg border border-blue-100">
-                                                <label class="block text-sm font-medium text-blue-900 mb-2">Upload Foto KTP (Wajib)</label>
-                                                <input type="file" name="ktp_foto" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-100 file:text-blue-700 hover:file:bg-blue-200 cursor-pointer" accept="image/*" required>
-                                                <p class="text-xs text-blue-600 mt-2 flex items-center">
-                                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                                    Nama akun harus sesuai dengan KTP untuk verifikasi.
-                                                </p>
+                                                <x-input-label for="durasi_sewa" :value="__('Durasi Sewa (Bulan)')" />
+                                                <x-text-input id="durasi_sewa" class="block mt-1 w-full" type="number" name="durasi_sewa" min="1" required />
                                             </div>
 
                                             <div>
-                                                <label class="block text-sm font-medium text-gray-700 mb-1">Catatan Tambahan (Opsional)</label>
-                                                <textarea name="catatan" rows="3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" placeholder="Contoh: Saya akan check-in sore hari..."></textarea>
+                                                <x-input-label for="ktp_foto" :value="__('Foto KTP (Wajib)')" />
+                                                <input id="ktp_foto" type="file" name="ktp_foto" accept="image/*" class="block mt-1 w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none" required />
+                                                <p class="mt-1 text-sm text-gray-500">Format: JPG, PNG. Maks: 2MB.</p>
                                             </div>
 
-                                            <button type="submit" class="w-full bg-indigo-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out flex justify-center items-center shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
-                                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
-                                                Ajukan Booking & Konfirmasi WA
-                                            </button>
+                                            <div>
+                                                <x-input-label for="catatan" :value="__('Catatan Tambahan')" />
+                                                <textarea id="catatan" name="catatan" class="block mt-1 w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500" rows="3"></textarea>
+                                            </div>
+
+                                            <div class="flex justify-end mt-4">
+                                                <x-primary-button>
+                                                    {{ __('Ajukan Sewa') }}
+                                                </x-primary-button>
+                                            </div>
                                         </form>
                                     </div>
                                 @else
