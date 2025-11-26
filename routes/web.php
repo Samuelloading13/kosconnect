@@ -4,17 +4,23 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
 // ====================================================
-// IMPORT CONTROLLER
+// 1. IMPORT CONTROLLER (WAJIB)
 // ====================================================
+
+// A. Controller Admin
 use App\Http\Controllers\Admin\RoomController;
 use App\Http\Controllers\Admin\LaporanController as AdminLaporanController;
 use App\Http\Controllers\Admin\PaymentController as AdminPaymentController;
 use App\Http\Controllers\Admin\LaporanKerusakanController as AdminLaporanKerusakanController;
 use App\Http\Controllers\Admin\PenghuniController as AdminPenghuniController;
-use App\Http\Controllers\Admin\BookingController as AdminBookingController;
+use App\Http\Controllers\Admin\BookingController as AdminBookingController; // <-- Untuk Approve & Perpanjang
+
+// B. Controller Penghuni & Umum
+use App\Http\Controllers\Penghuni\LaporanController;
+use App\Http\Controllers\Penghuni\PaymentController;
+use App\Http\Controllers\Penghuni\DashboardController;
+use App\Http\Controllers\BookingController; // <-- Untuk User Booking Awal
 use App\Http\Controllers\HomeController;
-use App\Http\Controllers\BookingController;
-use App\Http\Controllers\NotificationController; // <-- TAMBAHAN PENTING
 
 /*
 |--------------------------------------------------------------------------
@@ -22,69 +28,79 @@ use App\Http\Controllers\NotificationController; // <-- TAMBAHAN PENTING
 |--------------------------------------------------------------------------
 */
 
-// Halaman Depan (Publik)
+// Halaman Depan (Landing Page)
 Route::get('/', [HomeController::class, 'index'])->name('home');
+
+// Halaman Detail Kamar (Publik)
 Route::get('/kamar/{id}', [HomeController::class, 'show'])->name('kamar.show');
 
-// Dashboard Umum (Redirect otomatis sesuai role)
+// Proses Booking (User Login)
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::post('/booking', [BookingController::class, 'store'])->name('booking.store');
+});
+
+// Dashboard Umum (Redirect sesuai role)
 Route::get('/dashboard', function () {
-    if (auth()->user()->role == 'admin') {
-        return redirect()->route('admin.kamar.index');
-    } elseif (auth()->user()->role == 'penghuni') {
-        return redirect()->route('penghuni.dashboard');
-    }
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
-// Group Route Login
+
+// Profile Routes
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-
-    // Route Booking (User)
-    Route::post('/booking', [BookingController::class, 'store'])->name('booking.store');
-
-    // ==========================================
-    // ROUTE NOTIFIKASI (BARU)
-    // ==========================================
-    Route::get('/notifikasi/{id}', [NotificationController::class, 'markAsReadAndRedirect'])->name('notifikasi.read');
-    Route::post('/notifikasi/read-all', [NotificationController::class, 'markAllAsRead'])->name('notifikasi.readAll');
+    // Delete profile dihapus sesuai request
 });
 
 require __DIR__.'/auth.php';
 
-// ==========================================
-// GRUP RUTE ADMIN
-// ==========================================
-Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
-    // Manajemen Kamar
-    Route::resource('kamar', RoomController::class);
-    // Laporan Pemasukan
-    Route::get('laporan-pemasukan', [AdminLaporanController::class, 'index'])->name('laporan.pemasukan');
-    // Validasi Pembayaran
-    Route::get('/pembayaran', [AdminPaymentController::class, 'index'])->name('pembayaran.index');
-    Route::patch('/pembayaran/{id}', [AdminPaymentController::class, 'update'])->name('pembayaran.update');
-    // Laporan Kerusakan
-    Route::get('/laporan-kerusakan', [AdminLaporanKerusakanController::class, 'index'])->name('laporan_kerusakan.index');
-    Route::patch('/laporan-kerusakan/{id}', [AdminLaporanKerusakanController::class, 'update'])->name('laporan_kerusakan.update');
-    // Data Penghuni
-    Route::get('/data-penghuni', [AdminPenghuniController::class, 'index'])->name('penghuni.index');
-    Route::delete('/data-penghuni/{id}', [AdminPenghuniController::class, 'destroy'])->name('penghuni.destroy');
-    // Konfirmasi Booking
-    Route::get('/booking-masuk', [AdminBookingController::class, 'index'])->name('booking.index');
-    Route::patch('/booking-masuk/{id}', [AdminBookingController::class, 'update'])->name('booking.update');
-});
 
 // ==========================================
-// GRUP RUTE PENGHUNI
+// 2. GRUP RUTE ADMIN (MODUL 1 LENGKAP)
+// ==========================================
+Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
+
+    // A. Manajemen Kamar (CRUD)
+    Route::resource('kamar', RoomController::class);
+
+    // B. Laporan Pemasukan
+    Route::get('laporan-pemasukan', [AdminLaporanController::class, 'index'])->name('laporan.pemasukan');
+
+    // C. Validasi Pembayaran
+    Route::get('/pembayaran', [AdminPaymentController::class, 'index'])->name('pembayaran.index');
+    Route::patch('/pembayaran/{id}', [AdminPaymentController::class, 'update'])->name('pembayaran.update');
+
+    // D. Respons Laporan Kerusakan
+    Route::get('/laporan-kerusakan', [AdminLaporanKerusakanController::class, 'index'])->name('laporan_kerusakan.index');
+    Route::patch('/laporan-kerusakan/{id}', [AdminLaporanKerusakanController::class, 'update'])->name('laporan_kerusakan.update');
+
+    // E. Data Penghuni
+    Route::get('/data-penghuni', [AdminPenghuniController::class, 'index'])->name('penghuni.index');
+    Route::delete('/data-penghuni/{id}', [AdminPenghuniController::class, 'destroy'])->name('penghuni.destroy');
+
+    // F. Manajemen Booking (Approve & Perpanjang)
+    Route::resource('booking', AdminBookingController::class)->only(['index', 'update']);
+    // RUTE KHUSUS PERPANJANG SEWA
+    Route::post('/booking/{id}/perpanjang', [AdminBookingController::class, 'perpanjang'])->name('booking.perpanjang');
+});
+
+
+// ==========================================
+// 3. GRUP RUTE PENGHUNI (MODUL 2 LENGKAP)
 // ==========================================
 Route::middleware(['auth', 'role:penghuni'])->prefix('penghuni')->name('penghuni.')->group(function () {
-    // Dashboard
-    Route::get('/dashboard', [App\Http\Controllers\Penghuni\DashboardController::class, 'index'])->name('dashboard');
-    // Pembayaran
-    Route::get('/pembayaran', [App\Http\Controllers\Penghuni\PaymentController::class, 'index'])->name('pembayaran.index');
-    Route::post('/pembayaran', [App\Http\Controllers\Penghuni\PaymentController::class, 'store'])->name('pembayaran.store');
-    // Laporan
-    Route::resource('laporan', App\Http\Controllers\Penghuni\ReportController::class)->only(['index', 'create', 'store']);
+
+    // Dashboard Khusus Penghuni
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    // A. Fitur Laporan Kerusakan & Request
+    Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan.index');
+    Route::get('/laporan/buat', [LaporanController::class, 'create'])->name('laporan.create');
+    Route::post('/laporan', [LaporanController::class, 'store'])->name('laporan.store');
+
+    // B. Fitur Pembayaran
+    Route::get('/pembayaran', [PaymentController::class, 'index'])->name('pembayaran.index');
+    Route::get('/pembayaran/buat', [PaymentController::class, 'create'])->name('pembayaran.create');
+    Route::post('/pembayaran', [PaymentController::class, 'store'])->name('pembayaran.store');
+
 });
