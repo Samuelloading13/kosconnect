@@ -8,33 +8,37 @@ use Illuminate\Http\Request;
 
 class PaymentController extends Controller
 {
-    // READ: Lihat semua pembayaran masuk
     public function index()
     {
-        // Ambil data payment beserta data usernya (eager loading)
-        $payments = Payment::with('user')->latest()->paginate(10);
+        // Ambil data payment beserta user dan booking (untuk tau kamar)
+        // Menggunakan eager loading 'user.bookings.room' agar efisien
+        $payments = Payment::with(['user.bookings' => function($query) {
+             // Ambil booking yang aktif/disetujui terakhir untuk tau kamar saat ini
+             $query->where('status', 'disetujui')->latest();
+        }, 'user.bookings.room'])->latest()->paginate(10);
+
         return view('admin.pembayaran.index', compact('payments'));
     }
 
-    // UPDATE: Ubah status (Pending -> Sudah Membayar)
     public function update(Request $request, $id)
     {
-        $request->validate(['status' => 'required']);
         $payment = Payment::findOrFail($id);
-        $payment->update(['status' => $request->status]);
 
-        // NOTIF KE PENGHUNI: Status pembayaran diperbarui
-        $pesan = $request->status == 'sudah membayar' ? 'Pembayaran Anda telah diterima. Terima kasih!' : 'Pembayaran Anda ditolak/pending. Cek detailnya.';
-        $tipe = $request->status == 'sudah membayar' ? 'success' : 'warning';
+        // VALIDASI: Jika sudah lunas, tidak bisa diubah lagi statusnya
+        if ($payment->status == 'sudah membayar') {
+            return redirect()->back()->with('error', 'GAGAL: Pembayaran yang sudah LUNAS tidak dapat diubah statusnya.');
+        }
 
-        \App\Models\Notification::create([
-            'user_id' => $payment->user_id,
-            'title' => 'Status Pembayaran Diperbarui',
-            'message' => $pesan,
-            'type' => $tipe,
-            'link' => route('penghuni.pembayaran.index'),
+        // Validasi input status yang diterima
+        $request->validate([
+            'status' => 'required|in:pending,sudah membayar,belum bayar'
         ]);
 
-        return redirect()->back()->with('success', 'Status diperbarui.');
+        // Update status pembayaran
+        $payment->update([
+            'status' => $request->status
+        ]);
+
+        return redirect()->back()->with('success', 'Status pembayaran berhasil diperbarui.');
     }
 }

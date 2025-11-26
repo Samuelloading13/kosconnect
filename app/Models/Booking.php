@@ -16,6 +16,7 @@ class Booking extends Model
         'durasi_sewa',
         'status',
         'catatan',
+        'ktp_foto', // <-- Kolom baru ditambahkan
     ];
 
     public function user()

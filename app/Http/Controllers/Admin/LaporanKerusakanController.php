@@ -18,19 +18,21 @@ class LaporanKerusakanController extends Controller
     // UPDATE: Ubah status (Belum Ditangani -> Proses -> Selesai)
     public function update(Request $request, $id)
     {
-        $request->validate(['status' => 'required']);
-        $report = \App\Models\Report::findOrFail($id); // Sesuaikan modelnya
-        $report->update(['status' => $request->status]);
+        $report = Report::findOrFail($id);
 
-        // NOTIF KE PENGHUNI
-        \App\Models\Notification::create([
-            'user_id' => $report->user_id,
-            'title' => 'Update Laporan Kerusakan',
-            'message' => 'Status laporan "' . $report->judul . '" berubah menjadi: ' . ucfirst($request->status),
-            'type' => 'info',
-            'link' => route('penghuni.laporan.index'),
+        // VALIDASI: Jika sudah selesai, tidak bisa diubah lagi
+        if ($report->status == 'selesai') {
+            return redirect()->back()->with('error', 'GAGAL: Laporan yang sudah SELESAI tidak dapat diubah lagi statusnya.');
+        }
+
+        // Validasi input status yang diterima
+        $request->validate([
+            'status' => 'required|in:belum ditangani,proses,selesai',
         ]);
 
-        return redirect()->back()->with('success', 'Status laporan diperbarui.');
+        // Update status laporan
+        $report->update(['status' => $request->status]);
+
+        return redirect()->back()->with('success', 'Status laporan berhasil diperbarui.');
     }
 }

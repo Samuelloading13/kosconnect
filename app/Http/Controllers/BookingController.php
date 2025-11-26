@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Controller;
 use App\Models\Booking;
 use App\Models\Notification;
 use App\Models\Room;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -18,92 +20,64 @@ class BookingController extends Controller
             'tanggal_mulai_kos' => 'required|date',
             'durasi_sewa' => 'required|integer|min:1',
             'catatan' => 'nullable|string|max:500',
+            'ktp_foto' => 'required|image|mimes:jpg,jpeg,png|max:2048', // WAJIB KTP (Maks 2MB)
         ]);
 
-        // 2. Cek Duplikasi (Supaya tidak double booking yang statusnya masih pending)
+        // 2. Cek apakah user sudah punya booking aktif (Pending/Disetujui)
+        // Tujuannya agar satu user tidak spam booking banyak kamar sekaligus
         $existingBooking = Booking::where('user_id', Auth::id())
             ->whereIn('status', ['pending', 'disetujui'])
             ->first();
 
         if ($existingBooking) {
-            return redirect()->back()->with('error', 'Anda sudah memiliki booking yang aktif atau sedang diproses.');
+            return redirect()->back()->with('error', 'GAGAL: Anda sudah memiliki booking yang aktif atau sedang menunggu persetujuan.');
         }
 
-        // 3. Simpan Data Booking ke Database
+        // 3. Proses Upload KTP
+        $ktpPath = null;
+        if ($request->hasFile('ktp_foto')) {
+            // Simpan di folder 'public/ktp_user'
+            $ktpPath = $request->file('ktp_foto')->store('ktp_user', 'public');
+        }
+
+        // 4. Simpan Data Booking ke Database
         $booking = Booking::create([
             'user_id' => Auth::id(),
             'room_id' => $request->room_id,
             'tanggal_mulai_kos' => $request->tanggal_mulai_kos,
             'durasi_sewa' => $request->durasi_sewa,
-            'status' => 'pending',
+            'status' => 'pending', // Status awal
             'catatan' => $request->catatan,
+            'ktp_foto' => $ktpPath,
         ]);
 
-        // 4. Buat Notifikasi di Web (Lonceng)
-        Notification::create([
-            'user_id' => Auth::id(),
-            'title' => 'Booking Berhasil Diajukan',
-            'message' => 'Pengajuan booking Anda telah tercatat. Silakan lanjutkan konfirmasi ke WhatsApp Admin.',
-            'type' => 'info',
-            'link' => route('penghuni.dashboard'),
-        ]);
-
-        // 5. Redirect ke WhatsApp Admin
-        $kamar = Room::find($request->room_id);
-        $user = Auth::user();
-
-        // Nomor Admin (Sesuai request kamu)
-        $nomorAdmin = '6287756205689';
-
-        $pesan = "Halo Admin KosConnect, saya ingin mengajukan booking kamar:\n\n" .
-                 "Nama: *$user->name*\n" .
-                 "Kamar: *$kamar->nama_kamar*\n" .
-                 "Harga: Rp " . number_format($kamar->harga_bulanan, 0, ',', '.') . "\n" .
-                 "Mulai: " . date('d M Y', strtotime($request->tanggal_mulai_kos)) . "\n" .
-                 "Durasi: $request->durasi_sewa Bulan\n\n" .
-                 "Mohon infonya untuk proses selanjutnya. Terima kasih!";
-
-        $waLink = "https://wa.me/$nomorAdmin?text=" . urlencode($pesan);
-
-        // Arahkan user ke Link WhatsApp
-        // 4. Buat Notifikasi di Web (Lonceng) untuk Penghuni
-        Notification::create([
-            'user_id' => Auth::id(),
-            'title' => 'Booking Berhasil Diajukan',
-            'message' => 'Pengajuan booking Anda telah tercatat. Silakan lanjutkan konfirmasi ke WhatsApp Admin.',
-            'type' => 'info',
-            'link' => route('penghuni.dashboard'),
-        ]);
-
-        // 5. Buat Notifikasi ke Admin (PENTING: pindahkan sebelum redirect)
-        $admin = \App\Models\User::where('role', 'admin')->first();
+        // 5. Buat Notifikasi untuk Admin (Optional - Uncomment jika Model Notification sudah siap)
+        $admin = User::where('role', 'admin')->first();
         if($admin) {
-            \App\Models\Notification::create([
+            Notification::create([
                 'user_id' => $admin->id,
                 'title' => 'Booking Masuk Baru',
-                'message' => Auth::user()->name . ' mengajukan booking baru. Segera cek.',
+                'message' => Auth::user()->name . ' mengajukan booking baru. Mohon cek KTP dan validasi.',
                 'type' => 'info',
                 'link' => route('admin.booking.index'),
             ]);
         }
 
-        // 6. Redirect ke WhatsApp Admin (akhir fungsi)
+        // 6. Redirect ke WhatsApp Admin
         $kamar = Room::find($request->room_id);
         $user = Auth::user();
+        // GANTI NOMOR DI BAWAH DENGAN NOMOR ADMIN ASLI (Format: 628...)
+        $nomorAdmin = '6281234567890';
 
-        // Nomor Admin (Sesuai request kamu)
-        $nomorAdmin = '6287756205689';
+        // Template Pesan WA
+        $pesan = "Halo Admin KosConnect, saya ingin konfirmasi booking kamar:\n\n" .
+                 "Nama: *" . $user->name . "*\n" .
+                 "Kamar: *" . $kamar->nama_kamar . "*\n" .
+                 "Durasi Sewa: *" . $request->durasi_sewa . " Bulan*\n" .
+                 "Tgl Mulai: " . $request->tanggal_mulai_kos . "\n\n" .
+                 "Saya sudah upload KTP di sistem. Mohon dicek dan diproses. Terima kasih.";
 
-        $pesan = "Halo Admin KosConnect, saya ingin mengajukan booking kamar:\n\n" .
-                "Nama: *$user->name*\n" .
-                "Kamar: *$kamar->nama_kamar*\n" .
-                "Harga: Rp " . number_format($kamar->harga_bulanan, 0, ',', '.') . "\n" .
-                "Mulai: " . date('d M Y', strtotime($request->tanggal_mulai_kos)) . "\n" .
-                "Durasi: $request->durasi_sewa Bulan\n\n" .
-                "Mohon infonya untuk proses selanjutnya. Terima kasih!";
-
-        $waLink = "https://wa.me/$nomorAdmin?text=" . urlencode($pesan);
-
-        return redirect($waLink);
+        // Redirect ke URL API WhatsApp
+        return redirect("https://wa.me/$nomorAdmin?text=" . urlencode($pesan));
     }
 }
