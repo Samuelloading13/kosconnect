@@ -16,11 +16,12 @@ use App\Http\Controllers\Admin\PenghuniController as AdminPenghuniController;
 use App\Http\Controllers\Admin\BookingController as AdminBookingController; // <-- Untuk Approve & Perpanjang
 
 // B. Controller Penghuni & Umum
-use App\Http\Controllers\Penghuni\LaporanController;
+use App\Http\Controllers\Penghuni\ReportController;
 use App\Http\Controllers\Penghuni\PaymentController;
 use App\Http\Controllers\Penghuni\DashboardController;
 use App\Http\Controllers\BookingController; // <-- Untuk User Booking Awal
 use App\Http\Controllers\HomeController;
+use App\Models\Report;
 
 /*
 |--------------------------------------------------------------------------
@@ -94,9 +95,9 @@ Route::middleware(['auth', 'role:penghuni'])->prefix('penghuni')->name('penghuni
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     // A. Fitur Laporan Kerusakan & Request
-    Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan.index');
-    Route::get('/laporan/buat', [LaporanController::class, 'create'])->name('laporan.create');
-    Route::post('/laporan', [LaporanController::class, 'store'])->name('laporan.store');
+    Route::get('/laporan', [ReportController::class, 'index'])->name('laporan.index');
+    Route::get('/laporan/buat', [ReportController::class, 'create'])->name('laporan.create');
+    Route::post('/laporan', [ReportController::class, 'store'])->name('laporan.store');
 
     // B. Fitur Pembayaran
     Route::get('/pembayaran', [PaymentController::class, 'index'])->name('pembayaran.index');
