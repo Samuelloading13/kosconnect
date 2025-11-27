@@ -15,7 +15,8 @@ class Payment extends Model
         'tanggal_bayar',
         'status',
         'bukti_pembayaran',
-        'keterangan_bulan', // <-- Kolom baru ditambahkan
+        'keterangan_bulan',
+        'catatan', 
     ];
 
     public function user()

@@ -11,7 +11,7 @@
                 <div class="p-6 text-gray-900 dark:text-gray-100">
 
                     <!-- Perhatikan route-nya mengarah ke UPDATE -->
-                    <form method="POST" action="{{ route('admin.kamar.update', $kamar->id) }}">
+                    <form method="POST" action="{{ route('admin.kamar.update', $kamar->id) }}" enctype="multipart/form-data">
                         @csrf
                         @method('PUT') <!-- Penting! Ubah method menjadi PUT untuk update -->
 
@@ -42,7 +42,30 @@
                                 <option value="terisi" {{ $kamar->status == 'terisi' ? 'selected' : '' }}>Terisi</option>
                             </select>
                         </div>
+                        <!-- Foto Kamar -->
+                        <div class="mt-4">
+                            <x-input-label for="foto" :value="__('Foto Kamar')" />
 
+                            <!-- Preview Foto Lama -->
+                            @if ($kamar->foto)
+                                <div class="mb-2">
+                                    <img src="{{ asset('storage/'.$kamar->foto) }}" alt="Foto Kamar" class="w-32 h-32 object-cover rounded">
+                                </div>
+                            @endif
+
+                            <!-- Input Foto Baru -->
+                            <input
+                                id="foto"
+                                type="file"
+                                name="foto"
+                                class="block mt-1 w-full text-gray-900 dark:text-gray-300"
+                                accept="image/png, image/jpg, image/jpeg"
+                            >
+
+                            <p class="text-sm text-gray-500 mt-1">
+                                Kosongkan jika tidak ingin mengganti foto.
+                            </p>
+                        </div>
                         <div class="flex items-center justify-end mt-4">
                             <!-- Tombol Batal -->
                             <a href="{{ route('admin.kamar.index') }}" class="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white mr-4">

@@ -60,7 +60,7 @@
     </div>
 
     <!-- Hero Section (Banner Utama) -->
-    <div class="relative bg-gradient-to-r from-blue-600 to-blue-800 text-white py-24 text-center overflow-hidden">
+    <div class="relative w-full min-h-screen bg-gradient-to-r from-blue-600 to-blue-800 text-white flex items-center justify-center text-center overflow-hidden">
         <!-- Hiasan Background -->
         <div class="absolute top-0 left-0 w-full h-full opacity-10">
             <svg class="w-full h-full" fill="currentColor" viewBox="0 0 100 100" preserveAspectRatio="none">
@@ -73,7 +73,7 @@
                 Temukan Kos Nyaman <br> Tanpa Ribet
             </h1>
             <p class="text-lg md:text-xl opacity-90 mb-8 max-w-2xl mx-auto text-blue-100">
-                Jelajahi ribuan pilihan kamar kos strategis dengan fasilitas lengkap. Booking mudah, hidup tenang.
+                Pilih berbagai tipe kamar yang tersedia dengan fasilitas lengkap. Booking cepat, tinggal lebih nyaman.
             </p>
 
             @guest
@@ -96,14 +96,17 @@
     </div>
 
     <!-- Daftar Kamar -->
-    <div id="kamar-tersedia" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div class="flex items-center justify-between mb-10">
-            <div>
-                <h2 class="text-3xl font-bold text-gray-900">Rekomendasi Kamar</h2>
-                <p class="text-gray-500 mt-1">Pilihan terbaik yang masih tersedia untukmu.</p>
-            </div>
+        <div id="kamar-tersedia" class="max-w-4xl mx-auto px-4 py-16 text-center">
+        <h2 class="text-3xl font-bold text-gray-900 mb-2">
+            Rekomendasi Kamar
+        </h2>
+        <p class="text-gray-500 mb-10">
+            Pilihan terbaik yang masih tersedia untukmu.
+        </p>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 justify-center justify-items-center">
+            <!-- card kamar -->
         </div>
-
+    </div>
         @if($kamar->isEmpty())
             <div class="text-center py-16 bg-white rounded-2xl shadow-sm border border-dashed border-gray-300">
                 <div class="inline-block p-4 rounded-full bg-gray-50 mb-4">
@@ -160,6 +163,65 @@
             </div>
         @endif
     </div>
+
+    <!-- Fasilitas Umum -->
+        <div class="bg-gradient-to-b from-white to-blue-50 py-20 mt-20">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+
+                <h2 class="text-3xl font-bold text-gray-900 mb-2">
+                    Fasilitas Umum
+                </h2>
+                <p class="text-gray-500 mb-12">
+                    Nikmati berbagai fasilitas untuk kenyamanan Anda
+                </p>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+
+                    <!-- Parkir Luas -->
+                    <div class="bg-white rounded-2xl shadow-md p-6 flex flex-col items-start hover:shadow-xl transition">
+                        <div class="text-blue-600 text-4xl mb-4">🅿️</div>
+                        <h3 class="text-lg font-semibold text-gray-800">Parkir Luas</h3>
+                        <p class="text-gray-500 text-sm mt-1">Area parkir motor & mobil</p>
+                    </div>
+
+                    <!-- Dapur Bersama -->
+                    <div class="bg-white rounded-2xl shadow-md p-6 flex flex-col items-start hover:shadow-xl transition">
+                        <div class="text-pink-500 text-4xl mb-4">🏪</div>
+                        <h3 class="text-lg font-semibold text-gray-800">Dapur Bersama</h3>
+                        <p class="text-gray-500 text-sm mt-1">Dapur lengkap untuk memasak</p>
+                    </div>
+
+                    <!-- Keamanan 24/7 -->
+                    <div class="bg-white rounded-2xl shadow-md p-6 flex flex-col items-start hover:shadow-xl transition">
+                        <div class="text-yellow-500 text-4xl mb-4">🔐</div>
+                        <h3 class="text-lg font-semibold text-gray-800">Keamanan 24/7</h3>
+                        <p class="text-gray-500 text-sm mt-1">CCTV & satpam siaga</p>
+                    </div>
+
+                    <!-- Laundry -->
+                    <div class="bg-white rounded-2xl shadow-md p-6 flex flex-col items-start hover:shadow-xl transition">
+                        <div class="text-blue-400 text-4xl mb-4">💧</div>
+                        <h3 class="text-lg font-semibold text-gray-800">Laundry</h3>
+                        <p class="text-gray-500 text-sm mt-1">Layanan laundry kiloan</p>
+                    </div>
+
+                    <!-- WiFi -->
+                    <div class="bg-white rounded-2xl shadow-md p-6 flex flex-col items-start hover:shadow-xl transition">
+                        <div class="text-green-500 text-4xl mb-4">📶</div>
+                        <h3 class="text-lg font-semibold text-gray-800">WiFi Cepat</h3>
+                        <p class="text-gray-500 text-sm mt-1">Jaringan internet stabil</p>
+                    </div>
+
+                    <!-- Area Jemur -->
+                    <div class="bg-white rounded-2xl shadow-md p-6 flex flex-col items-start hover:shadow-xl transition">
+                        <div class="text-orange-400 text-4xl mb-4">🌤️</div>
+                        <h3 class="text-lg font-semibold text-gray-800">Area Jemur</h3>
+                        <p class="text-gray-500 text-sm mt-1">Tempat jemur pakaian luas</p>
+                    </div>
+
+                </div>
+            </div>
+        </div>
 
     <footer class="bg-white border-t py-12 mt-auto">
         <div class="max-w-7xl mx-auto px-4 text-center">

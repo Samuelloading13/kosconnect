@@ -94,6 +94,9 @@
                         <form action="{{ route('penghuni.pembayaran.store') }}" method="POST" enctype="multipart/form-data">
                             @csrf
 
+                            <input type="hidden" name="keterangan_bulan" value="{{ \Carbon\Carbon::now()->translatedFormat('F Y') }}">
+
+                            <input type="hidden" name="durasi_bayar" value="1">
                             <!-- Input Jumlah (Otomatis dari Harga Kamar & Readonly) -->
                             <div class="mb-4">
                                 <x-input-label for="jumlah_bayar" :value="__('Jumlah Transfer (Rp)')" />
@@ -111,6 +114,29 @@
                                 <x-input-label for="tanggal_bayar" :value="__('Tanggal Transfer')" />
                                 <x-text-input id="tanggal_bayar" class="block mt-1 w-full" type="date" name="tanggal_bayar" required value="{{ date('Y-m-d') }}" />
                                 <x-input-error :messages="$errors->get('tanggal_bayar')" class="mt-2" />
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="text-sm font-medium text-gray-700">Bayar Untuk Bulan</label>
+                                <select name="bulan" required
+                                    class="w-full mt-1 border-gray-300 rounded-lg text-sm">
+                                    @foreach(range(1, 12) as $m)
+                                        <option value="{{ $m }}">
+                                            {{ \Carbon\Carbon::create()->month($m)->translatedFormat('F') }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <div class="mb-4">
+                                <x-input-label for="catatan" :value="__('Catatan (Opsional)')" />
+                                <textarea
+                                    id="catatan"
+                                    name="catatan"
+                                    rows="2"
+                                    class="block mt-1 w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                    placeholder="Contoh: Pembayaran bulan depan, atau info tambahan..."
+                                ></textarea>
                             </div>
 
                             <div class="mb-4">

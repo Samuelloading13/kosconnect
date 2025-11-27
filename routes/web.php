@@ -26,6 +26,7 @@ use App\Http\Controllers\BookingController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\NotificationController; // <--- TAMBAHKAN INI
 use App\Models\Report;
+use App\Http\Controllers\Penghuni\PerpanjangController;
 
 /*
 |--------------------------------------------------------------------------
@@ -108,4 +109,5 @@ Route::middleware(['auth', 'role:penghuni'])->prefix('penghuni')->name('penghuni
     Route::get('/pembayaran', [PaymentController::class, 'index'])->name('pembayaran.index');
     Route::get('/pembayaran/buat', [PaymentController::class, 'create'])->name('pembayaran.create');
     Route::post('/pembayaran', [PaymentController::class, 'store'])->name('pembayaran.store');
+    Route::post('/perpanjang/store', [PerpanjangController::class, 'store'])->name('perpanjang.store');
 });

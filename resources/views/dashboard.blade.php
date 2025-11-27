@@ -11,7 +11,7 @@
                 <!-- STATISTIK ADMIN -->
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
                     <div class="bg-blue-100 p-4 rounded-lg shadow-sm">
-                        <h3 class="font-bold text-blue-800 text-sm uppercase">Total Penghuni</h3>
+                        <h3 class="font-bold text-blue-800 text-sm uppercase">Pengguna Terdaftar</h3>
                         <p class="text-2xl font-bold text-gray-800 mt-2">{{ \App\Models\User::where('role', 'penghuni')->count() }}</p>
                     </div>
                     <div class="bg-green-100 p-4 rounded-lg shadow-sm">

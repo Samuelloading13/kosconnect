@@ -45,7 +45,7 @@ class PenghuniController extends Controller
             // LOGIKA PROTEKSI:
             // Dilarang hapus jika: (Masih Aktif/Lunas) ATAU (Nunggak tapi <= 7 hari)
             if (!$isLewatJatuhTempo || ($isLewatJatuhTempo && $jumlahHariLewat <= 7)) {
-                return redirect()->back()->with('error', 'GAGAL: Penghuni ini masih aktif atau masa tenggang belum lewat 7 hari. Tidak bisa dihapus.');
+                return redirect()->back()->with('error', 'GAGAL: Akun tidak dapat dihapus karena pengguna masih berstatus sebagai penghuni aktif.');
             }
 
             // LOGIKA EVICTION (PENGUSIRAN OTOMATIS):

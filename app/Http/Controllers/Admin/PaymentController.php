@@ -5,6 +5,9 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Payment;
 use Illuminate\Http\Request;
+use App\Models\Notification;
+use App\Models\User;
+
 
 class PaymentController extends Controller
 {
@@ -36,6 +39,17 @@ class PaymentController extends Controller
 
         // Simpan perubahan status
         $payment->update(['status' => $request->status]);
+        // Jika status diset ujui admin (lunas), kirim notifikasi ke penghuni
+        if ($request->status === 'sudah membayar') {
+
+            Notification::create([
+                'user_id' => $payment->user_id, // penghuni penerima notif
+                'title'   => 'Pembayaran Disetujui',
+                'message' => 'Pembayaran Anda untuk bulan ' . $payment->keterangan_bulan . ' telah disetujui oleh admin.',
+                'link'    => route('penghuni.pembayaran.index'),
+                'is_read' => false,
+            ]);
+        }
 
         return redirect()->back()->with('success', 'Status pembayaran berhasil diperbarui.');
     }

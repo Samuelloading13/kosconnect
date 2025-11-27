@@ -16,6 +16,12 @@
                         </div>
                     @endif
 
+                    @if(session('error'))
+                        <div class="mb-4 p-4 bg-red-100 text-red-700 rounded border border-red-200">
+                            {{ session('error') }}
+                        </div>
+                    @endif
+
                     <div class="overflow-x-auto">
                         <table class="min-w-full divide-y divide-gray-200">
 
@@ -82,7 +88,7 @@
                                         @elseif(!$lunasBulanLalu && $bookingAktif)
                                             {{-- 2. Kondisi Bahaya: Bulan lalu pun belum bayar (Nunggak) --}}
                                             <span class="px-2 inline-flex text-xs leading-5 font-bold rounded-full bg-red-100 text-red-800 animate-pulse">
-                                                ⚠ Nunggak
+                                                ⚠ Tertunda
                                             </span>
                                         @else
                                             {{-- 3. Kondisi Warning: Belum bayar bulan ini saja --}}

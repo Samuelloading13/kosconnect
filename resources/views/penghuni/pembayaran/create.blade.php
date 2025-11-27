@@ -46,6 +46,17 @@
                         <input id="bukti_pembayaran" type="file" name="bukti_pembayaran" class="block mt-1 w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none" required />
                     </div>
 
+                    <div class="mb-4">
+                        <x-input-label for="catatan" :value="__('Catatan (Opsional)')" />
+                        <textarea
+                            id="catatan"
+                            name="catatan"
+                            rows="2"
+                            class="block mt-1 w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                            placeholder="Contoh: Pembayaran 3 bulan ke depan, atau info lain..."
+                        ></textarea>
+                    </div>
+
                     <div class="flex justify-end mt-6">
                         <x-primary-button>
                             {{ __('Kirim Pembayaran') }}

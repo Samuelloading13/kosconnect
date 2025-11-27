@@ -22,6 +22,7 @@
                             <tr>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tanggal</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nama Pemohon</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">KTP</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Kamar</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Aksi</th>
@@ -35,6 +36,16 @@
                                     <div class="font-medium">{{ $booking->user->name }}</div>
                                     <div class="text-xs text-gray-500">Durasi: {{ $booking->durasi_sewa }} Bulan</div>
                                 </td>
+                                <td class="px-6 py-4 text-sm text-gray-900">
+                                    @if($booking->ktp_foto)
+                                        <button onclick="openKtpModal('{{ asset('storage/' . $booking->ktp_foto) }}')"
+                                                class="text-blue-600 hover:text-blue-900 text-xs border border-blue-200 px-2 py-1 rounded">
+                                            Lihat KTP
+                                        </button>
+                                    @else
+                                        <span class="text-gray-400 text-xs">Tidak ada</span>
+                                    @endif
+                                </td>
                                 <td class="px-6 py-4 text-sm text-gray-900">{{ $booking->room->nama_kamar }}</td>
                                 <td class="px-6 py-4 text-sm">
                                     <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $booking->status == 'pending' ? 'bg-yellow-100 text-yellow-800' : ($booking->status == 'disetujui' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800') }}">
@@ -42,14 +53,6 @@
                                     </span>
                                 </td>
                                 <td class="px-6 py-4 text-sm font-medium whitespace-nowrap">
-
-                                    {{-- 1. Tombol Lihat KTP --}}
-                                    @if($booking->ktp_foto)
-                                        <button onclick="openKtpModal('{{ asset('storage/' . $booking->ktp_foto) }}')"
-                                                class="text-blue-600 hover:text-blue-900 mr-3 text-xs border border-blue-200 px-2 py-1 rounded">
-                                            Lihat KTP
-                                        </button>
-                                    @endif
 
                                     {{-- 2. Logika Tombol Aksi --}}
                                     @if($booking->status == 'pending')

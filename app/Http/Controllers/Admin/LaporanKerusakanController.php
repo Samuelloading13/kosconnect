@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Report;
 use Illuminate\Http\Request;
+use App\Models\Notification;
+
 
 class LaporanKerusakanController extends Controller
 {
@@ -20,19 +22,56 @@ class LaporanKerusakanController extends Controller
     {
         $report = Report::findOrFail($id);
 
-        // VALIDASI: Jika sudah selesai, tidak bisa diubah lagi
+        // Jika sudah selesai → status terkunci
         if ($report->status == 'selesai') {
-            return redirect()->back()->with('error', 'GAGAL: Laporan yang sudah SELESAI tidak dapat diubah lagi statusnya.');
+            return back()->with('error', 'Laporan yang sudah SELESAI tidak dapat diubah lagi.');
         }
 
-        // Validasi input status yang diterima
+        // Validasi status
         $request->validate([
             'status' => 'required|in:belum ditangani,proses,selesai',
         ]);
 
-        // Update status laporan
-        $report->update(['status' => $request->status]);
+        $newStatus = $request->status;
 
-        return redirect()->back()->with('success', 'Status laporan berhasil diperbarui.');
+        // Tidak boleh kembali ke belum ditangani
+        if ($report->status == 'proses' && $newStatus == 'belum ditangani') {
+            return back()->with('error', 'Status tidak dapat dikembalikan ke BELUM DITANGANI.');
+        }
+
+        // Update status
+        $report->update(['status' => $newStatus]);
+
+        /*
+        |--------------------------------------
+        | NOTIFIKASI UNTUK PENGHUNI
+        |--------------------------------------
+        */
+        $userId = $report->user_id;
+
+        // Tentukan pesan sesuai status baru
+        if ($newStatus == 'proses') {
+            Notification::create([
+                'user_id' => $userId,
+                'title'   => 'Laporan Sedang Diproses',
+                'message' => 'Laporan kerusakan yang kamu ajukan sedang diproses oleh admin.',
+                'type'    => 'info',
+                'link'    => '/penghuni/laporan-kerusakan',
+            ]);
+        }
+
+        if ($newStatus == 'selesai') {
+            Notification::create([
+                'user_id' => $userId,
+                'title'   => 'Laporan Selesai',
+                'message' => 'Perbaikan laporan kerusakan kamu telah selesai ditangani.',
+                'type'    => 'success',
+                'link'    => '/penghuni/laporan-kerusakan',
+            ]);
+        }
+
+        return back()->with('success', 'Status laporan berhasil diperbarui.');
     }
+
+
 }

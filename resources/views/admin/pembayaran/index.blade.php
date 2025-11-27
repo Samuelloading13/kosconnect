@@ -26,16 +26,28 @@
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50 dark:bg-gray-700">
                                 <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Kamar</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Penghuni</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tanggal</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Jumlah</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Bukti</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Aksi</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
                                 </tr>
                             </thead>
                             <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200">
                                 @forelse($payments as $pay)
                                     <tr>
+                                        <td class="px-6 py-4 text-sm">
+                                            @php
+                                                $booking = $pay->user->bookings->first();
+                                            @endphp
+
+                                            @if($booking && $booking->room)
+                                                {{ $booking->room->nama_kamar }}
+                                            @else
+                                                <span class="text-gray-400 text-xs">Tidak ditemukan</span>
+                                            @endif
+                                        </td>
                                         <td class="px-6 py-4">
                                             <div class="font-medium">{{ $pay->user->name }}</div>
                                             <div class="text-xs text-gray-500">
@@ -50,13 +62,13 @@
                                             @else
                                                 <span class="text-gray-400 text-sm">-</span>
                                             @endif
-                                        </td>
+
                                         <td class="px-6 py-4">
                                             @if($pay->status == 'sudah membayar')
                                                 {{-- TAMPILAN JIKA SUDAH LUNAS (TERKUNCI) --}}
                                                 <div class="flex items-center space-x-2">
                                                     <span class="px-2 py-1 text-xs rounded-full bg-green-200 text-green-800 font-bold">
-                                                        ✔ LUNAS (Terkunci)
+                                                        ✔ LUNAS
                                                     </span>
                                                 </div>
                                             @else

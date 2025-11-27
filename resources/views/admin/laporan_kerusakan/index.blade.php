@@ -24,7 +24,6 @@
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Judul & Deskripsi</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Foto</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200">
@@ -43,25 +42,54 @@
                                             @else - @endif
                                         </td>
                                         <td class="px-6 py-4 align-top">
-                                            <span class="px-2 py-1 text-xs rounded-full
-                                                {{ $item->status == 'selesai' ? 'bg-green-200 text-green-800' :
-                                                   ($item->status == 'proses' ? 'bg-yellow-200 text-yellow-800' : 'bg-red-200 text-red-800') }}">
-                                                {{ ucfirst($item->status) }}
-                                            </span>
-                                        </td>
-                                        <td class="px-6 py-4 align-top">
-                                            <form action="{{ route('admin.laporan_kerusakan.update', $item->id) }}" method="POST" class="flex flex-col gap-2">
-                                                @csrf
-                                                @method('PATCH')
-                                                <select name="status" class="text-sm border-gray-300 rounded-md shadow-sm dark:bg-gray-700 dark:text-white">
-                                                    <option value="belum ditangani" {{ $item->status == 'belum ditangani' ? 'selected' : '' }}>Belum Ditangani</option>
-                                                    <option value="proses" {{ $item->status == 'proses' ? 'selected' : '' }}>Proses</option>
-                                                    <option value="selesai" {{ $item->status == 'selesai' ? 'selected' : '' }}>Selesai</option>
-                                                </select>
-                                                <button type="submit" class="text-white bg-indigo-600 hover:bg-indigo-700 px-3 py-1 rounded text-xs w-full">
-                                                    Update
-                                                </button>
-                                            </form>
+
+                                            @if($item->status == 'selesai')
+                                                {{-- Status sudah selesai (Terkunci) --}}
+                                                <div class="flex items-center space-x-2">
+                                                    <span class="px-2 py-1 text-xs rounded-full bg-green-200 text-green-800 font-bold">
+                                                        ✔ SELESAI
+                                                    </span>
+                                                </div>
+
+                                            @else
+                                                {{-- Form update status --}}
+                                                <form
+                                                    action="{{ route('admin.laporan_kerusakan.update', $item->id) }}"
+                                                    method="POST"
+                                                    class="flex items-center"
+                                                    onsubmit="
+                                                        var selectedValue = this.querySelector('select[name=\'status\']').value;
+                                                        if(selectedValue == 'selesai') {
+                                                            return confirm('PERINGATAN:\n\nAnda akan menandai laporan ini sebagai SELESAI.\nStatus akan TERKUNCI dan tidak dapat diubah lagi.\n\nPastikan kerusakan benar-benar sudah diperbaiki.\n\nLanjutkan?');
+                                                        }
+                                                    "
+                                                >
+                                                    @csrf
+                                                    @method('PATCH')
+
+                                                    <select name="status"
+                                                        class="text-xs border-gray-300 rounded-md shadow-sm dark:bg-gray-700 dark:text-white mr-2">
+
+                                                        {{-- Jika status masih "belum ditangani" --}}
+                                                        @if($item->status == 'belum ditangani')
+                                                            <option value="belum ditangani" selected>Belum Ditangani</option>
+                                                            <option value="proses">Proses</option>
+                                                            <option value="selesai">Tandai Selesai</option>
+                                                        @endif
+
+                                                        {{-- Jika status sudah "proses", hilangkan opsi "belum ditangani" --}}
+                                                        @if($item->status == 'proses')
+                                                            <option value="proses" selected>Proses</option>
+                                                            <option value="selesai">Tandai Selesai</option>
+                                                        @endif
+                                                    </select>
+
+                                                    <button type="submit"
+                                                        class="text-white bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded text-xs transition">
+                                                        Simpan
+                                                    </button>
+                                                </form>
+                                            @endif
                                         </td>
                                     </tr>
                                 @empty
