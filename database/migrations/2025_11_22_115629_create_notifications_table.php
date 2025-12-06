@@ -13,7 +13,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->string('title');
             $table->text('message');
-            $table->string('type')->default('info'); // info, success, warning
+            $table->string('type')->default('info');
             $table->string('link')->nullable();
             $table->boolean('is_read')->default(false);
             $table->timestamps();

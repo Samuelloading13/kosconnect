@@ -35,7 +35,7 @@
                                             Form Pengajuan Booking
                                         </h3>
 
-                                        <!-- FORM UPDATE: enctype ditambahkan di sini -->
+                                        <!-- FORM UPDATE -->
                                         <form action="{{ route('booking.store') }}" method="POST" enctype="multipart/form-data" class="space-y-4">
                                             @csrf
                                             <input type="hidden" name="room_id" value="{{ $kamar->id }}">

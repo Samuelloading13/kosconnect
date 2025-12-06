@@ -16,7 +16,6 @@ class CheckRole
     public function handle(Request $request, Closure $next, ...$roles): Response
 {
     if (! $request->user() || ! in_array($request->user()->role, $roles)) {
-        // Arahkan ke dashboard biasa jika bukan admin
         return redirect('/dashboard');
     }
     return $next($request);

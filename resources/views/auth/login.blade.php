@@ -40,7 +40,6 @@
             </x-primary-button>
         </div>
 
-        {{-- Tambahan: Link ke Halaman Daftar --}}
         <div class="mt-6 text-center border-t pt-4">
             <p class="text-sm text-gray-600">
                 Belum memiliki akun?

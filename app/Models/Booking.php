@@ -20,7 +20,6 @@ class Booking extends Model
         'tanggal_berakhir_kos',
     ];
 
-    // TAMBAHKAN INI
     protected $casts = [
         'tanggal_mulai_kos' => 'date',
         'tanggal_berakhir_kos' => 'date',

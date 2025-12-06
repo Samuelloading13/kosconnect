@@ -10,21 +10,18 @@
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
 
-                    {{-- Tombol Tambah & Notifikasi --}}
                     <div class="flex justify-between items-center mb-4">
                         <a href="{{ route('admin.kamar.create') }}" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition">
                             + Tambah Kamar
                         </a>
                     </div>
 
-                    {{-- Pesan Sukses --}}
                     @if(session('success'))
                         <div class="mb-4 p-4 bg-green-100 text-green-700 rounded border border-green-200">
                             {{ session('success') }}
                         </div>
                     @endif
 
-                    {{-- Pesan Error (misal gagal hapus) --}}
                     @if(session('error'))
                         <div class="mb-4 p-4 bg-red-100 text-red-700 rounded border border-red-200">
                             {{ session('error') }}
@@ -90,7 +87,6 @@
                         </table>
                     </div>
 
-                    {{-- Pagination --}}
                     <div class="mt-4">
                         {{ $kamar->links() }}
                     </div>

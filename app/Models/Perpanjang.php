@@ -9,7 +9,7 @@ class Perpanjang extends Model
 {
     use HasFactory;
 
-    protected $table = 'perpanjang'; // atau perpanjangs jika tabel plural
+    protected $table = 'perpanjang';
 
     protected $fillable = [
         'booking_id',

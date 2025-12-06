@@ -47,7 +47,6 @@
                                     {{-- Kolom Kamar --}}
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                         @php
-                                            // Ambil booking aktif terakhir
                                             $bookingAktif = $p->bookings->where('status', 'disetujui')->last();
                                         @endphp
 
@@ -60,20 +59,17 @@
                                         @endif
                                     </td>
 
-                                    {{-- Kolom Status Bayar Canggih --}}
+                                    {{-- Kolom Status Bayar --}}
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         @php
-                                            // Variabel Waktu
-                                            $bulanIni = date('Y-m'); // Contoh: 2025-11
-                                            $bulanLalu = date('Y-m', strtotime('-1 month')); // Contoh: 2025-10
+                                            $bulanIni = date('Y-m');
+                                            $bulanLalu = date('Y-m', strtotime('-1 month'));
 
-                                            // Cek Lunas Bulan Ini
                                             $lunasBulanIni = $p->payments->filter(function($payment) use ($bulanIni) {
                                                 return \Carbon\Carbon::parse($payment->tanggal_bayar)->format('Y-m') == $bulanIni
                                                        && $payment->status == 'sudah membayar';
                                             })->isNotEmpty();
 
-                                            // Cek Lunas Bulan Lalu
                                             $lunasBulanLalu = $p->payments->filter(function($payment) use ($bulanLalu) {
                                                 return \Carbon\Carbon::parse($payment->tanggal_bayar)->format('Y-m') == $bulanLalu
                                                        && $payment->status == 'sudah membayar';
@@ -81,17 +77,14 @@
                                         @endphp
 
                                         @if($lunasBulanIni)
-                                            {{-- 1. Kondisi Aman: Sudah bayar bulan ini --}}
                                             <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
                                                 Lunas
                                             </span>
                                         @elseif(!$lunasBulanLalu && $bookingAktif)
-                                            {{-- 2. Kondisi Bahaya: Bulan lalu pun belum bayar (Nunggak) --}}
                                             <span class="px-2 inline-flex text-xs leading-5 font-bold rounded-full bg-red-100 text-red-800 animate-pulse">
                                                 ⚠ Tertunda
                                             </span>
                                         @else
-                                            {{-- 3. Kondisi Warning: Belum bayar bulan ini saja --}}
                                             <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
                                                 Belum Bayar
                                             </span>
@@ -99,7 +92,6 @@
                                     </td>
 
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                         {{-- Tombol Hapus --}}
                                          <form action="{{ route('admin.penghuni.destroy', $p->id) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus akun ini? Data booking & pembayaran juga akan hilang.');">
                                             @csrf
                                             @method('DELETE')

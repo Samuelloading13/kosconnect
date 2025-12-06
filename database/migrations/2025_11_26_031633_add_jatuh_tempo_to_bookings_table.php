@@ -9,7 +9,6 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('bookings', function (Blueprint $table) {
-            // Menambah kolom tanggal berakhir sewa
             $table->date('tanggal_berakhir_kos')->nullable()->after('durasi_sewa');
         });
     }

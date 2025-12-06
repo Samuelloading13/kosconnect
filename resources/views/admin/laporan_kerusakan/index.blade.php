@@ -44,7 +44,6 @@
                                         <td class="px-6 py-4 align-top">
 
                                             @if($item->status == 'selesai')
-                                                {{-- Status sudah selesai (Terkunci) --}}
                                                 <div class="flex items-center space-x-2">
                                                     <span class="px-2 py-1 text-xs rounded-full bg-green-200 text-green-800 font-bold">
                                                         ✔ SELESAI
@@ -70,14 +69,12 @@
                                                     <select name="status"
                                                         class="text-xs border-gray-300 rounded-md shadow-sm dark:bg-gray-700 dark:text-white mr-2">
 
-                                                        {{-- Jika status masih "belum ditangani" --}}
                                                         @if($item->status == 'belum ditangani')
                                                             <option value="belum ditangani" selected>Belum Ditangani</option>
                                                             <option value="proses">Proses</option>
                                                             <option value="selesai">Tandai Selesai</option>
                                                         @endif
 
-                                                        {{-- Jika status sudah "proses", hilangkan opsi "belum ditangani" --}}
                                                         @if($item->status == 'proses')
                                                             <option value="proses" selected>Proses</option>
                                                             <option value="selesai">Tandai Selesai</option>

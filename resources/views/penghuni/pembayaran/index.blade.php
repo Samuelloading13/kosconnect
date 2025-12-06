@@ -8,12 +8,8 @@
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
 
-            <!-- ========================================== -->
-            <!-- NOTIFIKASI STATUS TAGIHAN (BAGIAN ATAS)    -->
-            <!-- ========================================== -->
-            @if(isset($booking) && $booking->room)
+           @if(isset($booking) && $booking->room)
                 @if(isset($sudahBayarBulanIni) && !$sudahBayarBulanIni)
-                    <!-- Notifikasi Belum Bayar (Kuning) -->
                     <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6 shadow-sm rounded-r">
                         <div class="flex">
                             <div class="flex-shrink-0">
@@ -34,7 +30,6 @@
                         </div>
                     </div>
                 @else
-                    <!-- Notifikasi Sudah Bayar (Hijau) -->
                     <div class="bg-green-50 border-l-4 border-green-400 p-4 mb-6 shadow-sm rounded-r">
                         <div class="flex">
                             <div class="flex-shrink-0">
@@ -54,7 +49,6 @@
                     </div>
                 @endif
             @else
-                <!-- Notifikasi Belum Punya Kamar (Merah) -->
                 <div class="bg-red-50 border-l-4 border-red-400 p-4 mb-6 shadow-sm rounded-r">
                     <div class="flex">
                         <div class="flex-shrink-0">
@@ -74,7 +68,6 @@
                 </div>
             @endif
 
-            <!-- Alert Sukses Upload -->
             @if (session('success'))
                 <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4" role="alert">
                     <strong class="font-bold">Berhasil!</strong>
@@ -83,10 +76,6 @@
             @endif
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-                <!-- ========================================== -->
-                <!-- BAGIAN KIRI: FORM UPLOAD BUKTI PEMBAYARAN  -->
-                <!-- ========================================== -->
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 h-fit">
                     <h3 class="text-lg font-medium text-gray-900 mb-4">Upload Bukti Pembayaran</h3>
 
@@ -97,7 +86,6 @@
                             <input type="hidden" name="keterangan_bulan" value="{{ \Carbon\Carbon::now()->translatedFormat('F Y') }}">
 
                             <input type="hidden" name="durasi_bayar" value="1">
-                            <!-- Input Jumlah (Otomatis dari Harga Kamar & Readonly) -->
                             <div class="mb-4">
                                 <x-input-label for="jumlah_bayar" :value="__('Jumlah Transfer (Rp)')" />
                                 <x-text-input id="jumlah_bayar" class="block mt-1 w-full bg-gray-100 cursor-not-allowed"
@@ -159,9 +147,6 @@
                     @endif
                 </div>
 
-                <!-- ========================================== -->
-                <!-- BAGIAN KANAN: RIWAYAT PEMBAYARAN           -->
-                <!-- ========================================== -->
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
                     <h3 class="text-lg font-medium text-gray-900 mb-4">Riwayat Pembayaran Saya</h3>
 

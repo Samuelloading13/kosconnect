@@ -9,7 +9,6 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
 
-                {{-- Pesan Sukses/Error --}}
                 @if(session('success'))
                     <div class="mb-4 p-4 bg-green-100 text-green-700 rounded border border-green-200">
                         {{ session('success') }}
@@ -54,9 +53,7 @@
                                 </td>
                                 <td class="px-6 py-4 text-sm font-medium whitespace-nowrap">
 
-                                    {{-- 2. Logika Tombol Aksi --}}
                                     @if($booking->status == 'pending')
-                                        {{-- Tombol Setuju/Tolak --}}
                                         <form action="{{ route('admin.booking.update', $booking->id) }}" method="POST" class="inline-block">
                                             @csrf @method('PATCH')
                                             <input type="hidden" name="status" value="disetujui">
@@ -69,7 +66,6 @@
                                         </form>
 
                                     @elseif($booking->status == 'disetujui')
-                                        {{-- [FITUR BARU] Form Perpanjang Sewa --}}
                                         <div class="inline-block bg-gray-50 border border-gray-200 rounded p-1 mr-2 align-middle">
                                             <form action="{{ route('admin.booking.perpanjang', $booking->id) }}" method="POST" class="flex items-center space-x-1"
                                                   onsubmit="return confirm('Yakin ingin menambah durasi sewa penghuni ini? Tanggal jatuh tempo akan diperbarui.');">
@@ -83,12 +79,20 @@
                                             </form>
                                         </div>
 
-                                        {{-- Tombol Selesai --}}
-                                        <form action="{{ route('admin.booking.update', $booking->id) }}" method="POST" class="inline-block align-middle">
-                                            @csrf @method('PATCH')
+                                        {{-- CHECKOUT ROOM --}}
+                                        <form action="{{ route('admin.booking.update', $booking->id) }}" method="POST" class="inline-block align-middle ml-2">
+                                            @csrf
+                                            @method('PATCH')
                                             <input type="hidden" name="status" value="selesai">
-                                            <button type="submit" class="text-gray-400 hover:text-gray-600 text-xs underline" onclick="return confirm('Tandai sewa sebagai selesai (Penghuni Keluar)?')">
-                                                Selesai
+
+                                            <button type="submit"
+                                                    class="bg-red-500 hover:bg-red-700 text-white text-xs font-bold py-1 px-2 rounded flex items-center gap-1"
+                                                    onclick="return confirm('⚠️ PERINGATAN!\n\nApakah Anda yakin ingin melakukan CHECKOUT untuk penghuni ini?\n\n- Status sewa akan berakhir.\n- Kamar akan kembali menjadi TERSEDIA.\n\nLanjutkan?')">
+
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                                                </svg>
+                                                Checkout
                                             </button>
                                         </form>
                                     @else

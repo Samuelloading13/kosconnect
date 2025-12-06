@@ -15,17 +15,14 @@ class PaymentController extends Controller
     {
         $user = Auth::user();
 
-        // Ambil booking aktif penghuni
         $booking = $user->booking()->with('room')->first();
 
-        // Cek apakah sudah bayar untuk bulan ini
         $sudahBayarBulanIni = Payment::where('user_id', Auth::id())
             ->whereMonth('tanggal_bayar', now()->month)
             ->whereYear('tanggal_bayar', now()->year)
             ->where('status', 'sudah membayar')
             ->exists();
 
-        // Riwayat pembayaran
         $payments = Payment::where('user_id', Auth::id())->latest()->paginate(10);
 
         return view('penghuni.pembayaran.index', compact(
@@ -52,10 +49,8 @@ class PaymentController extends Controller
             'bukti_pembayaran' => 'required|image|mimes:jpg,jpeg,png|max:2048',
         ]);
 
-        // Upload bukti
         $path = $request->file('bukti_pembayaran')->store('bukti_pembayaran', 'public');
 
-        // Format keterangan
         $keterangan = $request->keterangan_bulan;
         if ($request->durasi_bayar > 1) {
             $keterangan .= " (Utk {$request->durasi_bayar} Bulan)";
@@ -67,14 +62,12 @@ class PaymentController extends Controller
             'jumlah_bayar'     => $request->jumlah_bayar,
             'tanggal_bayar'    => $request->tanggal_bayar,
             'bukti_pembayaran' => $path,
-            'catatan'          => $request->catatan,  // <-- FIXED
+            'catatan'          => $request->catatan,
             'status'           => 'pending',
         ]);
 
-        // ======================
-        // Buat Notifikasi ke Admin
-        // ======================
-        $admin = User::where('role', 'admin')->first(); // sesuaikan jika field role beda
+        // notif ke admin
+        $admin = User::where('role', 'admin')->first();
 
         if ($admin) {
             Notification::create([

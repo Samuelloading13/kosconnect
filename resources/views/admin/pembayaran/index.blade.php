@@ -65,14 +65,13 @@
 
                                         <td class="px-6 py-4">
                                             @if($pay->status == 'sudah membayar')
-                                                {{-- TAMPILAN JIKA SUDAH LUNAS (TERKUNCI) --}}
                                                 <div class="flex items-center space-x-2">
                                                     <span class="px-2 py-1 text-xs rounded-full bg-green-200 text-green-800 font-bold">
                                                         ✔ LUNAS
                                                     </span>
                                                 </div>
                                             @else
-                                                {{-- FORM UPDATE STATUS DENGAN KONFIRMASI JS --}}
+                                                {{-- FORM UPDATE STATUS --}}
                                                 <form action="{{ route('admin.pembayaran.update', $pay->id) }}" method="POST" class="flex items-center"
                                                       onsubmit="
                                                         var selectedValue = this.querySelector('select[name=\'status\']').value;

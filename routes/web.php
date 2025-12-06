@@ -3,11 +3,7 @@
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
-// ====================================================
-// 1. IMPORT CONTROLLER (WAJIB)
-// ====================================================
-
-// A. Controller Admin
+// Controller Admin
 use App\Http\Controllers\Admin\RoomController;
 use App\Http\Controllers\Admin\LaporanController as AdminLaporanController;
 use App\Http\Controllers\Admin\PaymentController as AdminPaymentController;
@@ -18,13 +14,13 @@ use App\Models\User;
 use App\Models\Room;
 use App\Models\Booking;
 
-// B. Controller Penghuni & Umum
+// Controller Penghuni & Umum
 use App\Http\Controllers\Penghuni\ReportController;
 use App\Http\Controllers\Penghuni\PaymentController;
 use App\Http\Controllers\Penghuni\DashboardController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\HomeController;
-use App\Http\Controllers\NotificationController; // <--- TAMBAHKAN INI
+use App\Http\Controllers\NotificationController;
 use App\Models\Report;
 use App\Http\Controllers\Penghuni\PerpanjangController;
 
@@ -34,13 +30,10 @@ use App\Http\Controllers\Penghuni\PerpanjangController;
 |--------------------------------------------------------------------------
 */
 
-// Halaman Depan (Landing Page)
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
-// Halaman Detail Kamar (Publik)
 Route::get('/kamar/{id}', [HomeController::class, 'show'])->name('kamar.show');
 
-// Proses Booking (User Login)
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/booking', [BookingController::class, 'store'])->name('booking.store');
 });
@@ -48,7 +41,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
 // Dashboard Umum & Notifikasi
 Route::middleware(['auth', 'verified'])->group(function () {
 
-    // Route Dashboard
     Route::get('/dashboard', function () {
         if (auth()->user()->role === 'admin') {
             $totalPenghuni  = User::where('role', 'penghuni')->count();
@@ -66,7 +58,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
         return redirect()->route('penghuni.dashboard');
     })->name('dashboard');
 
-    // === [TAMBAHKAN ROUTE NOTIFIKASI DI SINI] ===
     Route::get('/notifikasi/baca-semua', [NotificationController::class, 'markAllAsRead'])->name('notifikasi.readAll');
     Route::get('/notifikasi/{id}/baca', [NotificationController::class, 'markAsReadAndRedirect'])->name('notifikasi.read');
 });
@@ -81,9 +72,7 @@ Route::middleware('auth')->group(function () {
 require __DIR__.'/auth.php';
 
 
-// ==========================================
-// 2. GRUP RUTE ADMIN
-// ==========================================
+// GRUP RUTE ADMIN
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::resource('kamar', RoomController::class);
     Route::get('laporan-pemasukan', [AdminLaporanController::class, 'index'])->name('laporan.pemasukan');
@@ -98,9 +87,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
 });
 
 
-// ==========================================
-// 3. GRUP RUTE PENGHUNI
-// ==========================================
+// GRUP RUTE PENGHUNI
 Route::middleware(['auth', 'role:penghuni'])->prefix('penghuni')->name('penghuni.')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/laporan', [ReportController::class, 'index'])->name('laporan.index');

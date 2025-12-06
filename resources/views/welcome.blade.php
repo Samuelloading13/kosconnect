@@ -16,18 +16,16 @@
                 <span class="font-bold text-2xl text-blue-600 mr-2">🏠</span>
                 <span class="font-bold text-xl text-gray-800">KosConnect</span>
 
-                <!-- Tombol Hubungi Admin -->
                 <a href="https://wa.me/6287756205689"
                     class="ml-6 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold py-2 px-4 rounded-full transition shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
                     Hubungi Admin
                 </a>
             </div>
 
-            <!-- Menu Kanan (Login/Register/Dashboard) -->
+            <!-- Menu Kanan -->
             <div class="flex items-center space-x-4">
                 @if (Route::has('login'))
                     @auth
-                        <!-- Kalau sudah login, muncul tombol Dashboard -->
                         @php
                             $dashboardRoute = Auth::user()->role == 'penghuni' ? route('penghuni.dashboard') : route('dashboard');
                         @endphp
@@ -35,7 +33,6 @@
                             Dashboard
                         </a>
 
-                        <!-- Tombol Logout Kecil (Opsional) -->
                         <form method="POST" action="{{ route('logout') }}" class="inline">
                             @csrf
                             <button type="submit" class="text-sm font-medium text-red-500 hover:text-red-700 ml-4 transition">
@@ -43,7 +40,6 @@
                             </button>
                         </form>
                     @else
-                        <!-- Kalau BELUM login, muncul tombol Masuk & Daftar -->
                         <a href="{{ route('login') }}" class="text-sm font-medium text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md hover:bg-gray-100 transition">
                             Masuk
                         </a>
@@ -59,9 +55,8 @@
         </div>
     </div>
 
-    <!-- Hero Section (Banner Utama) -->
+    <!-- Hero Section -->
     <div class="relative w-full min-h-screen bg-gradient-to-r from-blue-600 to-blue-800 text-white flex items-center justify-center text-center overflow-hidden">
-        <!-- Hiasan Background -->
         <div class="absolute top-0 left-0 w-full h-full opacity-10">
             <svg class="w-full h-full" fill="currentColor" viewBox="0 0 100 100" preserveAspectRatio="none">
                 <path d="M0 100 C 20 0 50 0 100 100 Z"></path>

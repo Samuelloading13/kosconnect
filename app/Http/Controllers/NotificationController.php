@@ -8,21 +8,25 @@ use Illuminate\Support\Facades\Auth;
 
 class NotificationController extends Controller
 {
-    // Fungsi ini dipanggil saat notifikasi diklik
     public function markAsReadAndRedirect($id)
     {
-        // Cari notifikasi milik user yang sedang login
-        $notification = Notification::where('user_id', Auth::id())->findOrFail($id);
+        $notification = Notification::where('user_id', Auth::id())->find($id);
 
-        // Tandai sudah dibaca (hilangkan titik merah)
-        $notification->update(['is_read' => true]);
+        if (!$notification) {
+            return redirect()->back();
+        }
 
-        // Arahkan user ke halaman tujuan (misal: pembayaran atau dashboard)
-        // Jika link kosong, default ke dashboard
-        return redirect($notification->link ?? route('penghuni.dashboard'));
+        if (!$notification->is_read) {
+            $notification->update(['is_read' => true]);
+        }
+
+        if (empty($notification->link)) {
+            return redirect()->route('penghuni.dashboard');
+        }
+
+        return redirect($notification->link);
     }
 
-    // Fungsi untuk tandai semua sudah dibaca
     public function markAllAsRead()
     {
         Notification::where('user_id', Auth::id())

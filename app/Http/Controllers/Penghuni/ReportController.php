@@ -9,20 +9,17 @@ use Illuminate\Support\Facades\Auth;
 
 class ReportController extends Controller
 {
-    // READ: Lihat daftar laporan saya
     public function index()
     {
         $reports = Report::where('user_id', Auth::id())->latest()->paginate(10);
         return view('penghuni.laporan.index', compact('reports'));
     }
 
-    // CREATE: Form lapor
     public function create()
     {
         return view('penghuni.laporan.create');
     }
 
-    // STORE: Simpan laporan ke database
     public function store(Request $request)
     {
         $request->validate([

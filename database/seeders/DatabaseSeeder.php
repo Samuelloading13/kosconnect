@@ -12,7 +12,6 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // Buat Akun Admin
         User::create([
             'name' => 'Admin Kos',
             'email' => 'admin@kosconnect.com',

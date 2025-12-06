@@ -14,23 +14,18 @@ class DashboardController extends Controller
     {
         $userId = Auth::id();
 
-        // Cek apakah user punya history booking
         $booking = Booking::with('room')->where('user_id', $userId)->latest()->first();
 
-        // === LOGIKA REDIRECT ===
-        // Jika belum pernah booking sama sekali, lempar ke halaman depan (Cari Kamar)
+        // jika belum pernah booking sama sekali ke hal utama
         if (!$booking) {
             return redirect()->route('home')->with('status', 'Silakan pilih dan booking kamar terlebih dahulu.');
         }
-        // ========================
 
-        // Tentukan status penghuni
         $statusPenghuni = 'calon';
         if ($booking->status == 'disetujui') $statusPenghuni = 'resmi';
         elseif ($booking->status == 'pending') $statusPenghuni = 'pending';
         elseif ($booking->status == 'ditolak') $statusPenghuni = 'ditolak';
 
-        // Data tambahan jika resmi
         $tagihanPending = 0;
         $laporanAktif = 0;
         $terakhirBayar = null;

@@ -20,7 +20,6 @@
         <div>
             <x-input-label for="name" :value="__('Name')" />
 
-            {{-- Input Nama dikunci (readonly) dan diberi background abu-abu --}}
             <x-text-input id="name" name="name" type="text"
                 class="mt-1 block w-full bg-gray-100 text-gray-500 cursor-not-allowed"
                 :value="old('name', $user->name)"

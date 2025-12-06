@@ -12,14 +12,14 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('reports', function (Blueprint $table) {
-    $table->id();
-    $table->foreignId('user_id')->constrained()->onDelete('cascade'); // Relasi ke penghuni
-    $table->string('judul');
-    $table->text('deskripsi');
-    $table->string('foto')->nullable();
-    $table->enum('status', ['belum ditangani', 'proses', 'selesai'])->default('belum ditangani');
-    $table->timestamps();
-});
+            $table->id();
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->string('judul');
+            $table->text('deskripsi');
+            $table->string('foto')->nullable();
+            $table->enum('status', ['belum ditangani', 'proses', 'selesai'])->default('belum ditangani');
+            $table->timestamps();
+        });
     }
 
     /**

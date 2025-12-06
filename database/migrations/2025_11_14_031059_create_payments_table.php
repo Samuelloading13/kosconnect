@@ -12,14 +12,14 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('payments', function (Blueprint $table) {
-    $table->id();
-    $table->foreignId('user_id')->constrained()->onDelete('cascade'); // Relasi ke penghuni
-    $table->integer('jumlah_bayar');
-    $table->date('tanggal_bayar');
-    $table->enum('status', ['belum bayar', 'pending', 'sudah membayar'])->default('belum bayar');
-    $table->string('bukti_pembayaran')->nullable(); // Path foto bukti transfer
-    $table->timestamps();
-});
+            $table->id();
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->integer('jumlah_bayar');
+            $table->date('tanggal_bayar');
+            $table->enum('status', ['belum bayar', 'pending', 'sudah membayar'])->default('belum bayar');
+            $table->string('bukti_pembayaran')->nullable();
+            $table->timestamps();
+        });
     }
 
     /**

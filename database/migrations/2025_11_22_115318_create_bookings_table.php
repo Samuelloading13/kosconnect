@@ -14,7 +14,7 @@ return new class extends Migration
             $table->foreignId('room_id')->constrained()->onDelete('cascade');
             $table->date('tanggal_mulai_kos');
             $table->integer('durasi_sewa')->default(1);
-            $table->enum('status', ['pending', 'disetujui', 'ditolak'])->default('pending');
+            $table->enum('status', ['pending', 'disetujui', 'ditolak', 'selesai'])->default('pending');
             $table->text('catatan')->nullable();
             $table->timestamps();
         });
